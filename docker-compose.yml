@@ -1,0 +1,14 @@
+services:
+  mealie:
+    container_name: mealie
+    image: ghcr.io/mealie-recipes/mealie:latest
+    restart: unless-stopped
+    ports:
+      - "9925:9000"
+    environment:
+      ALLOW_SIGNUP: "true"
+      TZ: "America/New_York"
+      PUID: 1000
+      PGID: 1000
+    volumes:
+      - ./data:/app/data

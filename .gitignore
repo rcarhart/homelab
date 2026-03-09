@@ -1,0 +1,11 @@
+# Mealie data - contains database, secrets, recipes, user data
+data/
+
+# Environment and secret files
+.env
+.env.*
+*.secret
+*.key
+
+# Docker override files (may contain local credentials)
+docker-compose.override.yml
