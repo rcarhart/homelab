@@ -41,3 +41,13 @@ mealie-backup:
     echo '0 3 * * * /scripts/backup-mealie.sh' > /etc/crontabs/root &&
     crond -f
     "
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: mealie-watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: >
+      --schedule "0 0 5 * * *"
+      --cleanup
+      mealie mealie-cloudflared mealie-backup
