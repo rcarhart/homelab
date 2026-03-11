@@ -4,14 +4,11 @@ views:
     icon: mdi:chef-hat
     theme: Kitchen Dark
     badges: []
-
     cards:
-
       - type: grid
         columns: 4
         square: false
         cards:
-
           - type: tile
             entity: sensor.kitchen_time
             name: Time
@@ -20,13 +17,14 @@ views:
               action: none
 
           - type: tile
-            entity: weather.home
+            entity: weather.forecast_home
             name: Weather
             vertical: true
 
           - type: tile
-            entity: calendar.family
-            name: Today
+            entity: sensor.mealie_todays_meal
+            name: Dinner Tonight
+            icon: mdi:silverware-fork-knife
             vertical: true
 
           - type: tile
@@ -34,44 +32,31 @@ views:
             name: House
             vertical: true
 
-
       - type: grid
         columns: 2
         square: false
         cards:
-
-          - type: picture
-            image: >
-              https://recipes.rosscarhart.com/api/media/recipes/{{states('sensor.mealie_todays_meal_id')}}/images/min-original.webp
+          - type: picture-entity
+            entity: camera.recipes_rosscarhart_com
+            name: Dinner Tonight
+            show_state: false
+            show_name: true
             tap_action:
               action: url
               url_path: https://recipes.rosscarhart.com
-            title: >
-              Dinner Tonight: {{states('sensor.mealie_todays_meal')}}
 
           - type: tile
-            entity: todo.grocery_list
+            entity: todo.shopping_list
             name: Groceries
             icon: mdi:cart-outline
 
-
-      - type: grid
-        columns: 2
-        square: false
-        cards:
-
-          - type: tile
-            entity: todo.chores
-            name: Chores
-            icon: mdi:broom
-
-          - type: tile
-            entity: climate.kitchen
-            name: Home
-            icon: mdi:home-thermometer-outline
-
-
-      - type: picture-entity
-        entity: camera.nest_doorbell
-        name: Front Door
-        camera_view: live
+      - type: entities
+        title: Kitchen Status
+        show_header_toggle: false
+        entities:
+          - entity: person.ross_carhart
+            name: Ross
+          - entity: weather.forecast_home
+            name: Forecast
+          - entity: sensor.mealie_todays_meal
+            name: Tonight's Meal

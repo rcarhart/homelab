@@ -30,7 +30,7 @@ rest:
   - resource: "https://recipes.rosscarhart.com/api/households/mealplans/today"
     method: GET
     headers:
-      Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb25nX3Rva2VuIjp0cnVlLCJpZCI6IjE4YTUwYWMxLWUwNDEtNDgyMi04Mzc3LWZlMWMxMWYyZjk1ZCIsIm5hbWUiOiJtZWFsaWUiLCJpbnRlZ3JhdGlvbl9pZCI6ImdlbmVyaWMiLCJleHAiOjE5MzA4MjE0NDd9.f4pkSLXzl8BUPAQ5BDG-GVgETn9jrSWLnl_xlzVKhdY
+      Authorization: !secret mealie_api_token
     scan_interval: 3600
     sensor:
       - name: mealie_todays_meal
