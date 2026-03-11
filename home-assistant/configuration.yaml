@@ -1,0 +1,19 @@
+homeassistant:
+  name: Home
+  unit_system: imperial
+  time_zone: America/New_York
+
+default_config:
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+lovelace:
+  mode: yaml
+  dashboards:
+    kitchen-dashboard:
+      mode: yaml
+      title: Kitchen
+      icon: mdi:chef-hat
+      show_in_sidebar: true
+      filename: dashboards/kitchen.yaml
