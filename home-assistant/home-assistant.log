@@ -1,0 +1,2 @@
+2026-03-11 19:56:52.038 WARNING (Recorder) [homeassistant.components.recorder.db_schema] State attributes for sensor.mealie_shopping_items exceed maximum size of 16384 bytes. This can cause database performance issues; Attributes will not be stored
+2026-03-11 19:56:52.074 WARNING (Recorder) [homeassistant.components.recorder.db_schema] State attributes for sensor.mealie_shopping_items exceed maximum size of 16384 bytes. This can cause database performance issues; Attributes will not be stored
