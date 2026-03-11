@@ -1,0 +1,80 @@
+views:
+  - title: Kitchen
+    path: kitchen
+    cards:
+      - type: grid
+        columns: 3
+        square: false
+        cards:
+          - type: tile
+            entity: # TODO: fill in missing entity
+            name: # TODO: fill in missing name
+            vertical: true
+            tap_action:
+              action: more-info
+
+          - type: tile
+            entity: calendar.family
+            name: Today
+            vertical: true
+            tap_action:
+              action: navigate
+              navigation_path: /calendar
+
+          - type: tile
+            entity: sensor.house_status
+            name: House
+            vertical: true
+            tap_action:
+              action: more-info
+
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: tile
+            entity: sensor.dinner_tonight
+            name: Dinner Tonight
+            icon: mdi:silverware-fork-knife
+            vertical: false
+            tap_action:
+              action: url
+              url_path: https://recipes.rosscarhart.com
+
+          - type: tile
+            entity: todo.grocery_list
+            name: Grocery List
+            icon: mdi:cart-outline
+            vertical: false
+            tap_action:
+              action: more-info
+
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: tile
+            entity: todo.chores
+            name: Chores
+            icon: mdi:broom
+            vertical: false
+            tap_action:
+              action: more-info
+
+          - type: tile
+            entity: climate.kitchen
+            name: Home
+            icon: mdi:home-thermometer-outline
+            vertical: false
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-home/home-controls
+
+      - type: picture-entity
+        entity: camera.nest_doorbell
+        name: Front Door
+        camera_view: live
+        show_state: false
+        show_name: true
+        tap_action:
+          action: more-info
