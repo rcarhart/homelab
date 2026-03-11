@@ -24,23 +24,24 @@ services:
     depends_on:
       - mealie
 
-mealie-backup:
-  image: alpine:3.20
-  container_name: mealie-backup
-  restart: unless-stopped
-  depends_on:
-    - mealie
-  volumes:
-    - ./data:/source
-    - ./backups:/backups
-    - ./scripts:/scripts
-  command: >
-    sh -c "
-    apk add --no-cache sqlite &&
-    chmod +x /scripts/backup-mealie.sh &&
-    echo '0 3 * * * /scripts/backup-mealie.sh' > /etc/crontabs/root &&
-    crond -f
-    "
+  mealie-backup:
+    image: alpine:3.20
+    container_name: mealie-backup
+    restart: unless-stopped
+    depends_on:
+      - mealie
+    volumes:
+      - ./data:/source
+      - ./backups:/backups
+      - ./scripts:/scripts
+    command: >
+      sh -c "
+      apk add --no-cache sqlite &&
+      chmod +x /scripts/backup-mealie.sh &&
+      echo '0 3 * * * /scripts/backup-mealie.sh' > /etc/crontabs/root &&
+      crond -f
+      "
+
   watchtower:
     image: containrrr/watchtower:latest
     container_name: mealie-watchtower
