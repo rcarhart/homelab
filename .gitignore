@@ -1,0 +1,7 @@
+# Home Assistant runtime artifacts
+home-assistant/home-assistant_v2.db
+home-assistant/home-assistant_v2.db-shm
+home-assistant/home-assistant_v2.db-wal
+home-assistant/home-assistant.log
+home-assistant/home-assistant.log.*
+home-assistant/.ha_run.lock

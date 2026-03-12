@@ -1,4 +1,4 @@
-tunnel: mealie
+tunnel: homelab
 ingress:
   - hostname: recipes.yourdomain.com
     service: http://mealie:9000

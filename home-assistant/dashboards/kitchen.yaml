@@ -5,116 +5,78 @@ views:
     theme: Kitchen Dark
     badges: []
     cards:
+      - type: picture-elements
+        image: https://recipes.rosscarhart.com/api/media/recipes/{{ states('sensor.mealie_todays_meal_id') }}/images/min-original.webp
+        tap_action:
+          action: url
+          url_path: https://recipes.rosscarhart.com/g/home/r/{{ states('sensor.mealie_todays_meal_slug') }}
+        elements:
+          - type: state-label
+            entity: sensor.mealie_todays_meal
+            style:
+              left: 50%
+              top: 82%
+              width: 82%
+              transform: translate(-50%, -50%)
+              background: rgba(246, 241, 235, 0.84)
+              color: '#201814'
+              padding: 18px 20px
+              border-radius: 26px
+              font-size: 2rem
+              font-weight: 700
+              line-height: 1.1
+              text-align: left
+              box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24)
+          - type: state-label
+            entity: sensor.mealie_todays_meal
+            attribute: friendly_name
+            prefix: 'Open recipe'
+            style:
+              left: 22%
+              top: 94%
+              transform: translate(-50%, -50%)
+              color: '#C86B3C'
+              font-size: 0.95rem
+              font-weight: 600
+              text-transform: uppercase
+              letter-spacing: 0.08em
+
       - type: markdown
+        title: Kitchen
         content: >
-          # Kitchen
+          **Tonight's meal**
 
-          Your cooking hub for tonight's dinner, this week's plan, and grocery prep.
+          {{ states('sensor.mealie_todays_meal') }}
 
-      - type: grid
-        columns: 2
-        square: false
-        cards:
-          - type: tile
-            entity: sensor.kitchen_time
-            name: Time
-            vertical: true
-            tap_action:
-              action: none
+          **Grocery items**
 
-          - type: tile
-            entity: sensor.mealie_shopping_items
-            name: Groceries
-            icon: mdi:cart-outline
-            vertical: true
-            tap_action:
-              action: url
-              url_path: https://recipes.rosscarhart.com/shopping-lists/426daca7-1a35-4b03-a802-d47b0458e184
+          {% set items = state_attr('sensor.mealie_shopping_items', 'items') %}
+          {% if items %}
+          {% for item in items %}
+          {{ item.display if item.display else ((item.quantity | string) ~ ' ' ~ (item.unit.name if item.unit else '') ~ ' ' ~ (item.food.name if item.food else 'Item')) }}
 
-      - type: vertical-stack
-        cards:
-          - type: picture-entity
-            entity: camera.recipes_rosscarhart_com
-            show_state: false
-            show_name: false
-            tap_action:
-              action: none
+          {% endfor %}
+          {% else %}
+          Grocery list is loading.
+          {% endif %}
 
-          - type: markdown
-            content: >
-              {% set meal = states('sensor.mealie_todays_meal') %}
-              {% set slug = states('sensor.mealie_todays_meal_slug') %}
-              <div style="padding: 0.25rem 0 0.5rem 0;">
-                <div style="font-size: 0.9rem; letter-spacing: 0.18em; text-transform: uppercase; color: #C9B8AA; margin-bottom: 0.35rem;">Tonight's Dinner</div>
-                <div style="font-size: 2rem; font-weight: 700; line-height: 1.15; margin-bottom: 0.85rem; color: #F6F1EB;">
-                  {{ meal if meal not in ['unknown', 'unavailable', 'None', ''] else 'Dinner is loading' }}
-                </div>
-                {% if slug not in ['unknown', 'unavailable', 'None', ''] %}
-                <a href="https://recipes.rosscarhart.com/g/home/r/{{ slug }}" target="_blank" style="display:inline-block; margin-right: 0.5rem; margin-bottom: 0.5rem; padding: 0.7rem 1rem; border-radius: 999px; background: #C86B3C; color: #111111; text-decoration: none; font-weight: 700;">Open Recipe</a>
-                <a href="https://recipes.rosscarhart.com/g/home/r/{{ slug }}/cook" target="_blank" style="display:inline-block; margin-right: 0.5rem; margin-bottom: 0.5rem; padding: 0.7rem 1rem; border-radius: 999px; background: #F2B880; color: #111111; text-decoration: none; font-weight: 700;">Cook Mode</a>
-                <a href="https://recipes.rosscarhart.com/g/home/mealplans" target="_blank" style="display:inline-block; margin-bottom: 0.5rem; padding: 0.7rem 1rem; border-radius: 999px; border: 1px solid #4A433E; color: #F6F1EB; text-decoration: none; font-weight: 600;">Weekly Plan</a>
-                {% else %}
-                <span style="color: #C9B8AA;">Open Mealie to review tonight's recipe.</span>
-                {% endif %}
-              </div>
+          [Open full shopping list](https://recipes.rosscarhart.com/shopping-lists/426daca7-1a35-4b03-a802-d47b0458e184)
 
       - type: markdown
         title: Weekly Meal Plan
         content: >
           {% set meals = state_attr('sensor.mealie_weekly_plan', 'items') %}
           {% if meals %}
-          <div>
           {% for item in meals %}
           {% set recipe = item.recipe if item.recipe is defined else none %}
           {% set recipe_name = recipe.name if recipe and recipe.name else (item.title if item.title else 'Meal planned') %}
-          {% set recipe_id = recipe.id if recipe and recipe.id else '' %}
           {% set recipe_slug = recipe.slug if recipe and recipe.slug else '' %}
-          <div style="display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-bottom:1px solid #2F2F2F;">
-            {% if recipe_id %}
-            <a href="https://recipes.rosscarhart.com/g/home/r/{{ recipe_slug if recipe_slug else '' }}" target="_blank" style="flex:0 0 88px; text-decoration:none;">
-              <img src="https://recipes.rosscarhart.com/api/media/recipes/{{ recipe_id }}/images/min-original.webp" alt="{{ recipe_name }}" style="width:88px; height:66px; object-fit:cover; border-radius:12px; display:block; background:#171717;">
-            </a>
-            {% endif %}
-            <div style="min-width:0; flex:1;">
-              <div style="font-size:0.76rem; letter-spacing:0.14em; text-transform:uppercase; color:#C9B8AA; margin-bottom:0.15rem;">
-                {{ strptime(item.date, '%Y-%m-%d').strftime('%A') }}
-              </div>
-              <div style="font-size:1rem; font-weight:700; line-height:1.3; color:#F6F1EB; margin-bottom:0.35rem;">
-                {{ recipe_name }}
-              </div>
-              {% if recipe_slug %}
-              <a href="https://recipes.rosscarhart.com/g/home/r/{{ recipe_slug }}" target="_blank" style="margin-right:0.6rem; color:#F2B880; text-decoration:none; font-weight:600;">Recipe</a>
-              <a href="https://recipes.rosscarhart.com/g/home/r/{{ recipe_slug }}/cook" target="_blank" style="color:#F2B880; text-decoration:none; font-weight:600;">Cook</a>
-              {% endif %}
-            </div>
-          </div>
+          **{{ strptime(item.date, '%Y-%m-%d').strftime('%A') }}** - {{ recipe_name }}
+          {% if recipe_slug %}
+          [Recipe](https://recipes.rosscarhart.com/g/home/r/{{ recipe_slug }}) | [Cook](https://recipes.rosscarhart.com/g/home/r/{{ recipe_slug }}/cook)
+          {% endif %}
+
           {% endfor %}
-          </div>
           {% else %}
           Weekly plan is loading from Mealie.
           {% endif %}
-
-      - type: markdown
-        title: Grocery Preview
-        content: >
-          {% set items = state_attr('sensor.mealie_shopping_items', 'items') %}
-          {% if items %}
-          {% for item in items[:8] %}
-          - {{ item.display if item.display else ((item.quantity | string) ~ ' ' ~ (item.unit.name if item.unit else '') ~ ' ' ~ (item.food.name if item.food else 'Item')) }}
-          {% endfor %}
-
-          [Open full shopping list](https://recipes.rosscarhart.com/shopping-lists/426daca7-1a35-4b03-a802-d47b0458e184)
-          {% else %}
-          Shopping list is loading.
-
-          [Open full shopping list](https://recipes.rosscarhart.com/shopping-lists/426daca7-1a35-4b03-a802-d47b0458e184)
-          {% endif %}
-
-      - type: entities
-        title: Kitchen Essentials
-        show_header_toggle: false
-        entities:
-          - entity: sensor.mealie_todays_meal
-            name: Tonight's Meal
-          - entity: sensor.mealie_shopping_items
-            name: Shopping Items

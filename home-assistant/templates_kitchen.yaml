@@ -1,0 +1,73 @@
+- sensor:
+    - name: kitchen_time
+      unique_id: kitchen_time
+      state: "{{ now().strftime('%I:%M %p').lstrip('0') }}"
+
+    - name: kitchen_today_label
+      unique_id: kitchen_today_label
+      state: "{{ now().strftime('%A, %B %d') }}"
+
+    - name: kitchen_mealie_tonights_meal
+      unique_id: kitchen_mealie_tonights_meal
+      state: >-
+        {{ states('sensor.mealie_todays_meal') if states('sensor.mealie_todays_meal') not in ['unknown', 'unavailable', ''] else 'Dinner loading' }}
+      attributes:
+        meal_type: >-
+          {{ state_attr('sensor.mealie_todays_meal_slug', 'entryType') | default('Tonight', true) }}
+        recipe_slug: "{{ states('sensor.mealie_todays_meal_slug') }}"
+        recipe_url: >-
+          {% set slug = states('sensor.mealie_todays_meal_slug') %}
+          {{ 'https://recipes.rosscarhart.com/g/home/r/' ~ slug if slug not in ['unknown', 'unavailable', ''] else 'https://recipes.rosscarhart.com' }}
+        image_url: >-
+          {% set meal_id = states('sensor.mealie_todays_meal_id') %}
+          {{ 'https://recipes.rosscarhart.com/api/media/recipes/' ~ meal_id ~ '/images/min-original.webp' if meal_id not in ['unknown', 'unavailable', ''] else '' }}
+        category: >-
+          {% set recipe = state_attr('sensor.mealie_todays_meal_slug', 'recipe') %}
+          {{ recipe.recipeCategory[0].name if recipe and recipe.recipeCategory is defined and recipe.recipeCategory and recipe.recipeCategory[0].name is defined else '' }}
+
+    - name: kitchen_mealie_shopping_count
+      unique_id: kitchen_mealie_shopping_count
+      icon: mdi:cart-outline
+      state: >-
+        {% set items = state_attr('sensor.mealie_shopping_items_raw', 'items') | default([], true) %}
+        {% set ns = namespace(count=0) %}
+        {% for item in items %}
+          {% set checked = item.checked if item.checked is defined else false %}
+          {% if not checked %}
+            {% set ns.count = ns.count + 1 %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.count }}
+
+    - name: kitchen_mealie_next_item
+      unique_id: kitchen_mealie_next_item
+      icon: mdi:cart-variant
+      state: >-
+        {% set items = state_attr('sensor.mealie_shopping_items_raw', 'items') | default([], true) %}
+        {% set next_item = namespace(value='All set') %}
+        {% for item in items %}
+          {% set checked = item.checked if item.checked is defined else false %}
+          {% if not checked and next_item.value == 'All set' %}
+            {% set next_item.value = item.display if item.display is defined and item.display else ((item.quantity | string if item.quantity is defined else '') ~ ' ' ~ (item.unit.name if item.unit is defined and item.unit else '') ~ ' ' ~ (item.food.name if item.food is defined and item.food else 'Item')) | trim %}
+          {% endif %}
+        {% endfor %}
+        {{ next_item.value }}
+
+    - name: kitchen_mealie_shopping_summary
+      unique_id: kitchen_mealie_shopping_summary
+      icon: mdi:clipboard-list-outline
+      state: >-
+        {% set count = states('sensor.kitchen_mealie_shopping_count') | int(0) %}
+        {{ 'All set' if count == 0 else count ~ ' items remaining' }}
+
+    - name: kitchen_environment_temperature
+      unique_id: kitchen_environment_temperature
+      unit_of_measurement: '°F'
+      state: >-
+        {{ state_attr('weather.forecast_home', 'temperature') if state_attr('weather.forecast_home', 'temperature') is not none else 'unknown' }}
+
+    - name: kitchen_environment_humidity
+      unique_id: kitchen_environment_humidity
+      unit_of_measurement: '%'
+      state: >-
+        {{ state_attr('weather.forecast_home', 'humidity') if state_attr('weather.forecast_home', 'humidity') is not none else 'unknown' }}

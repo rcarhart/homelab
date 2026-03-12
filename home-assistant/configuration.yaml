@@ -1,3 +1,4 @@
+# Main Home Assistant configuration for the homelab instance.
 homeassistant:
   name: Carhart Household
   unit_system: us_customary
@@ -16,56 +17,11 @@ lovelace:
       title: Kitchen
       icon: mdi:chef-hat
       show_in_sidebar: true
-      filename: dashboards/kitchen.yaml
+      filename: dashboards/dashboard-kitchen.yaml
 
-template:
-  - sensor:
-      - name: kitchen_time
-        state: "{{ now().strftime('%I:%M %p') }}"
+# REST-backed Mealie sensors. Prefer the official HA Mealie integration when it
+# exposes the data you need; keep this include for shopping-list gaps.
+rest: !include rest_mealie.yaml
 
-      - name: house_status
-        state: "Carhart Household"
-
-rest:
-  - resource: "https://recipes.rosscarhart.com/api/households/mealplans/today"
-    method: GET
-    headers:
-      Authorization: !secret mealie_api_token
-    scan_interval: 3600
-    sensor:
-      - name: mealie_todays_meal
-        value_template: "{{ value_json[0]['recipe']['name'] if value_json and value_json | count > 0 else 'No meal planned' }}"
-        unique_id: mealie_todays_meal
-
-      - name: mealie_todays_meal_id
-        value_template: "{{ value_json[0]['recipe']['id'] if value_json and value_json | count > 0 else '' }}"
-        unique_id: mealie_todays_meal_id
-
-      - name: mealie_todays_meal_slug
-        value_template: "{{ value_json[0]['recipe']['slug'] if value_json and value_json | count > 0 else '' }}"
-        unique_id: mealie_todays_meal_slug
-
-  - resource_template: >-
-      https://recipes.rosscarhart.com/api/households/mealplans?start_date={{ (now() - timedelta(days=now().weekday())).strftime('%Y-%m-%d') }}&end_date={{ (now() + timedelta(days=(6 - now().weekday()))).strftime('%Y-%m-%d') }}&perPage=-1&orderBy=date&orderDirection=asc
-    method: GET
-    headers:
-      Authorization: !secret mealie_api_token
-    scan_interval: 3600
-    sensor:
-      - name: mealie_weekly_plan
-        value_template: "{{ value_json.total if value_json is mapping and 'total' in value_json else 0 }}"
-        json_attributes:
-          - items
-        unique_id: mealie_weekly_plan
-
-  - resource: "https://recipes.rosscarhart.com/api/households/shopping/items?perPage=-1&orderDirection=asc"
-    method: GET
-    headers:
-      Authorization: !secret mealie_api_token
-    scan_interval: 900
-    sensor:
-      - name: mealie_shopping_items
-        value_template: "{{ value_json.total if value_json is mapping and 'total' in value_json else 0 }}"
-        json_attributes:
-          - items
-        unique_id: mealie_shopping_items
+# Kitchen-specific template sensors and derived values.
+template: !include templates_kitchen.yaml
