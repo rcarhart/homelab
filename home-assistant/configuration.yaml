@@ -1,4 +1,3 @@
-# Main Home Assistant configuration for the homelab instance.
 homeassistant:
   name: Carhart Household
   unit_system: us_customary
@@ -11,17 +10,70 @@ frontend:
 
 lovelace:
   resource_mode: yaml
+  resources:
+  - url: /hacsfiles/lovelace-mushroom/mushroom.js
+    type: module
+  - url: /hacsfiles/button-card/button-card.js
+    type: module
+  - url: /hacsfiles/lovelace-card-mod/card-mod.js
+    type: module
+  - url: /hacsfiles/lovelace-layout-card/layout-card.js
+    type: module
   dashboards:
     kitchen-dashboard:
       mode: yaml
       title: Kitchen
       icon: mdi:chef-hat
       show_in_sidebar: true
-      filename: dashboards/dashboard-kitchen.yaml
+      filename: dashboards/kitchen.yaml
 
-# REST-backed Mealie sensors. Prefer the official HA Mealie integration when it
-# exposes the data you need; keep this include for shopping-list gaps.
-rest: !include rest_mealie.yaml
+template:
+  - sensor:
+      - name: kitchen_time
+        state: "{{ now().strftime('%I:%M %p') }}"
 
-# Kitchen-specific template sensors and derived values.
-template: !include templates_kitchen.yaml
+      - name: house_status
+        state: "Carhart Household"
+
+rest:
+  - resource: !secret mealie_mealplan_today_url
+    method: GET
+    headers:
+      Authorization: !secret mealie_api_token
+    scan_interval: 3600
+    sensor:
+      - name: mealie_todays_meal
+        value_template: "{{ value_json[0]['recipe']['name'] if value_json and value_json | count > 0 else 'No meal planned' }}"
+        unique_id: mealie_todays_meal
+
+      - name: mealie_todays_meal_id
+        value_template: "{{ value_json[0]['recipe']['id'] if value_json and value_json | count > 0 else '' }}"
+        unique_id: mealie_todays_meal_id
+
+      - name: mealie_todays_meal_slug
+        value_template: "{{ value_json[0]['recipe']['slug'] if value_json and value_json | count > 0 else '' }}"
+        unique_id: mealie_todays_meal_slug
+
+  - resource: !secret mealie_mealplans_url
+    method: GET
+    headers:
+      Authorization: !secret mealie_api_token
+    scan_interval: 3600
+    sensor:
+      - name: mealie_weekly_plan
+        value_template: "{{ value_json.total if value_json is mapping and 'total' in value_json else 0 }}"
+        json_attributes:
+          - items
+        unique_id: mealie_weekly_plan
+
+  - resource: !secret mealie_shopping_items_url
+    method: GET
+    headers:
+      Authorization: !secret mealie_api_token
+    scan_interval: 900
+    sensor:
+      - name: mealie_shopping_items
+        value_template: "{{ value_json.total if value_json is mapping and 'total' in value_json else 0 }}"
+        json_attributes:
+          - items
+        unique_id: mealie_shopping_items
