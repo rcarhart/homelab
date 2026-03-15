@@ -1,5 +1,5 @@
 tunnel: homelab
 ingress:
   - hostname: recipes.rosscarhart.com
-    service: http://mealie:9000
+    service: http://192.168.86.47:9925
   - service: http_status:404
