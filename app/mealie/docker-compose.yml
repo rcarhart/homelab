@@ -7,7 +7,7 @@ services:
       - "${MEALIE_PORT}:9000"
     environment:
       TZ: ${TZ}
-      ALLOW_SIGNUP: "false"
+      ALLOW_SIGNUP: ${ALLOW_SIGNUP}
       BASE_URL: ${MEALIE_BASE_URL}
       PUID: ${PUID}
       PGID: ${PGID}

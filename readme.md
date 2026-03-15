@@ -15,28 +15,44 @@ Primary goals:
 
 The homelab runs on a **Lenovo ThinkCentre M720q** server using **Proxmox**.
 
+```text
 Proxmox
 ├─ VM: Ubuntu + Docker
-│ ├─ Mealie
-│ ├─ Immich
-│ ├─ Paperless
-│ ├─ Plex
-│ └─ Portainer
-│
+│  ├─ Mealie
+│  ├─ Immich
+│  ├─ Paperless
+│  ├─ Plex
+│  └─ Portainer
 ├─ VM: Home Assistant
-│
 └─ LXC: Pi-hole
+```
 
+## Repository Layout
+
+```text
+homelab/
+├─ app/
+├─ infrastructure/
+├─ home-assistant/
+└─ docs/
+```
+
+Docker services use a consistent pattern:
+
+- `docker-compose.yml` defines the stack
+- `.env.example` documents required variables
+- `.env` lives only on the target machine
+- runtime folders such as `data/` and `backups/` stay out of git
 
 ---
 
 # Primary Services
 
 ## Mealie
+
 Recipe manager and meal planning system.
 
-Public URL:recipes.rosscarhart.com
-
+Public URL: `recipes.rosscarhart.com`
 
 Functions:
 
@@ -98,4 +114,3 @@ Design goals:
 - single screen
 - tap expansions
 - readable from across the room
-

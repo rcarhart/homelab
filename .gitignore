@@ -21,3 +21,17 @@ home-assistant/www/community/
 # Python cache
 **/__pycache__/
 *.pyc
+
+# Local environment files
+**/.env
+!**/.env.example
+
+# Docker app runtime data
+app/*/.env
+app/*/data/
+app/*/backups/
+app/*/library/
+app/*/config/
+app/*/consume/
+app/*/export/
+app/*/media/
