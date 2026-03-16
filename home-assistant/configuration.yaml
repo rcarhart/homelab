@@ -28,12 +28,7 @@ lovelace:
       filename: dashboards/dashboard-kitchen.yaml
 
 template:
-  - sensor:
-      - name: kitchen_time
-        state: "{{ now().strftime('%I:%M %p') }}"
-
-      - name: house_status
-        state: "Carhart Household"
+  !include templates_kitchen.yaml
 
 rest:
   - resource: !secret mealie_mealplan_today_url
