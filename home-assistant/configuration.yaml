@@ -25,10 +25,15 @@ lovelace:
       title: Kitchen
       icon: mdi:chef-hat
       show_in_sidebar: true
-      filename: dashboards/dashboard-kitchen.yaml
+      filename: dashboards/kitchen.yaml
 
 template:
-  !include templates_kitchen.yaml
+  - sensor:
+      - name: kitchen_time
+        state: "{{ now().strftime('%I:%M %p') }}"
+
+      - name: house_status
+        state: "Carhart Household"
 
 rest:
   - resource: !secret mealie_mealplan_today_url
