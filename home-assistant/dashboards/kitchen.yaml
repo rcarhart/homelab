@@ -193,73 +193,57 @@ views:
               `;
             ]]]
 
-      - type: custom:button-card
+      - type: vertical-stack
         view_layout:
           grid-area: shopping
-        entity: sensor.mealie_shopping_items
-        show_icon: true
-        show_name: true
-        show_state: false
-        name: Shopping List
-        icon: mdi:cart-outline
-        tap_action:
-          action: url
-          url_path: https://recipes.rosscarhart.com/shopping-lists/426daca7-1a35-4b03-a802-d47b0458e184
-        styles:
-          grid:
-            - grid-template-areas: '"i n" "body body" "footer footer"'
-            - grid-template-columns: min-content 1fr
-            - grid-template-rows: min-content 1fr min-content
-            - column-gap: 12px
-          card:
-            - padding: 24px
-            - border-radius: 30px
-            - background: linear-gradient(145deg, rgba(28,28,30,0.96), rgba(17,17,19,0.98))
-            - border: 1px solid rgba(255,255,255,0.07)
-            - box-shadow: 0 20px 40px rgba(0,0,0,0.3)
-            - min-height: 320px
-          icon:
-            - color: rgba(106, 214, 224, 0.95)
-            - width: 30px
-          name:
-            - justify-self: start
-            - align-self: center
-            - font-size: 1.8rem
-            - font-weight: 700
-            - letter-spacing: -0.03rem
-          custom_fields:
-            body:
-              - margin-top: 20px
-              - text-align: left
-            footer:
-              - margin-top: 18px
-              - padding-top: 14px
-              - border-top: 1px solid rgba(255,255,255,0.08)
-              - font-size: 0.94rem
-              - color: rgba(255,255,255,0.72)
-              - text-align: center
-        custom_fields:
-          body: >
-            [[[
-              const items = entity?.attributes?.items || [];
-              if (!items.length) {
-                return `<div style="padding: 36px 0 16px; color: rgba(255,255,255,0.78); font-size: 1rem;">All set. Nothing left to buy.</div>`;
-              }
-              const rows = items.slice(0, 8).map((item) => {
-                const name = item.note || item.food?.name || item.display || item.title || "Item";
-                const quantity = item.quantity ? `${item.quantity}` : "";
-                const unit = item.unit?.name || item.unit || "";
-                const detail = [quantity, unit].filter(Boolean).join(" ");
-                return `
-                  <div style="display:flex; justify-content:space-between; gap:14px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
-                    <span style="color:rgba(255,255,255,0.96); font-size:1rem; line-height:1.4;">${name}</span>
-                    <span style="color:rgba(255,255,255,0.58); font-size:0.94rem; white-space:nowrap;">${detail}</span>
-                  </div>
-                `;
-              }).join("");
-              return rows;
-            ]]]
-          footer: Open full shopping list
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Shopping List
+            secondary: >
+              Tap items to complete them or add new ones at the bottom.
+            icon: mdi:cart-outline
+            icon_color: cyan
+            multiline_secondary: true
+            fill_container: true
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 30px 30px 0 0;
+                  padding: 18px 20px 12px;
+                  background: linear-gradient(145deg, rgba(28, 28, 30, 0.96), rgba(17, 17, 19, 0.98));
+                  border: 1px solid rgba(255, 255, 255, 0.07);
+                  border-bottom: none;
+                  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+                }
+                mushroom-shape-icon {
+                  --shape-color: rgba(106, 214, 224, 0.16) !important;
+                }
+                .primary {
+                  font-size: 1.8rem !important;
+                  font-weight: 700 !important;
+                  letter-spacing: -0.03rem;
+                }
+                .secondary {
+                  font-size: 0.96rem !important;
+                  line-height: 1.5 !important;
+                  opacity: 0.76;
+                }
+
+          - type: todo-list
+            entity: todo.shopping_list
+            title: ''
+            hide_completed: false
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 0 0 30px 30px;
+                  padding: 0 10px 14px;
+                  background: linear-gradient(145deg, rgba(28, 28, 30, 0.96), rgba(17, 17, 19, 0.98));
+                  border: 1px solid rgba(255, 255, 255, 0.07);
+                  border-top: none;
+                  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+                  min-height: 260px;
+                }
 
       - type: custom:button-card
         view_layout:
