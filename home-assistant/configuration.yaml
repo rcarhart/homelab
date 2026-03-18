@@ -2,6 +2,7 @@ homeassistant:
   name: Carhart Household
   unit_system: us_customary
   time_zone: America/New_York
+  internal_url: http://192.168.86.47:8123
 
 default_config:
 
