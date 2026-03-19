@@ -12,7 +12,7 @@ views:
         "weekly weekly weekly weekly weekly weekly weekly weekly weekly weekly weekly weekly"
         "meal meal meal meal meal meal meal shopping shopping shopping shopping shopping"
         "meal meal meal meal meal meal meal media media media media media"
-      grid-template-rows: min-content min-content minmax(260px, auto) min-content
+      grid-template-rows: min-content min-content minmax(220px, auto) min-content
       grid-gap: 20px
       margin: 20px
       mediaquery:
@@ -129,14 +129,8 @@ views:
         show_name: false
         show_state: false
         tap_action:
-          action: url
-          url_path: >
-            [[[
-              const slug = states["sensor.mealie_todays_meal_slug"]?.state;
-              return slug && slug !== "unknown"
-                ? `https://recipes.rosscarhart.com/g/home/r/${slug}`
-                : "https://recipes.rosscarhart.com";
-            ]]]
+          action: navigate
+          navigation_path: /kitchen-dashboard/kitchen-recipe
         styles:
           card:
             - padding: 0
@@ -145,7 +139,7 @@ views:
             - border: 1px solid rgba(255,255,255,0.08)
             - box-shadow: 0 22px 44px rgba(0,0,0,0.34)
             - background: linear-gradient(145deg, rgba(26,26,28,0.96), rgba(14,14,16,0.98))
-            - min-height: 460px
+            - min-height: 360px
             - position: relative
           entity_picture:
             - width: 100%
@@ -194,10 +188,10 @@ views:
                   ${meal}
                 </div>
                 <div style="font-size: 0.98rem; color: rgba(255,255,255,0.76); margin-bottom: 18px;">
-                  Dinner from Mealie, ready when you are.
+                  Tap to view ingredients and directions.
                 </div>
                 <div style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 999px; background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.10); color: rgba(255,255,255,0.95); font-size: 0.92rem; font-weight: 600;">
-                  Open recipe
+                  View recipe
                 </div>
               `;
             ]]]
@@ -354,6 +348,89 @@ views:
             ha-card {
               border-radius: 28px;
               overflow: hidden;
+              background: linear-gradient(145deg, rgba(28, 28, 30, 0.96), rgba(16, 16, 18, 0.98));
+              border: 1px solid rgba(255, 255, 255, 0.07);
+              box-shadow: 0 18px 36px rgba(0, 0, 0, 0.26);
+            }
+
+  - title: Recipe
+    path: kitchen-recipe
+    subview: true
+    theme: Kitchen Dark
+    badges: []
+    cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.mealie_todays_recipe
+        primary: >
+          {{ states('sensor.mealie_todays_recipe') }}
+        secondary: >
+          {% set total = state_attr('sensor.mealie_todays_recipe', 'totalTime') %}
+          {% set category = state_attr('sensor.mealie_todays_recipe', 'recipeCategory') %}
+          Tonight's recipe{% if total %} - {{ total }}{% endif %}{% if category %} - {{ category }}{% endif %}
+        icon: mdi:book-open-page-variant
+        icon_color: amber
+        fill_container: true
+
+      - type: custom:button-card
+        entity: camera.recipes_rosscarhart_com
+        show_entity_picture: true
+        show_name: false
+        show_state: false
+        styles:
+          card:
+            - padding: 0
+            - border-radius: 28px
+            - overflow: hidden
+            - border: 1px solid rgba(255,255,255,0.08)
+            - box-shadow: 0 18px 36px rgba(0,0,0,0.28)
+            - background: linear-gradient(145deg, rgba(26,26,28,0.96), rgba(14,14,16,0.98))
+            - min-height: 240px
+          entity_picture:
+            - width: 100%
+            - height: 100%
+            - object-fit: cover
+            - filter: saturate(1.02) contrast(1.02)
+
+      - type: markdown
+        title: Ingredients
+        content: >
+          {% set ingredients = state_attr('sensor.mealie_todays_recipe', 'recipeIngredient') or [] %}
+          {% if ingredients %}
+          {% for item in ingredients %}
+          - {{ item.note if item.note is defined and item.note else item.title if item.title is defined else item.originalText if item.originalText is defined else item.food.name if item.food is defined and item.food and item.food.name is defined else item }}
+          {% endfor %}
+          {% else %}
+          Ingredients are loading.
+          {% endif %}
+        card_mod:
+          style: |
+            ha-card {
+              border-radius: 28px;
+              padding: 8px 12px 12px;
+              background: linear-gradient(145deg, rgba(28, 28, 30, 0.96), rgba(16, 16, 18, 0.98));
+              border: 1px solid rgba(255, 255, 255, 0.07);
+              box-shadow: 0 18px 36px rgba(0, 0, 0, 0.26);
+            }
+
+      - type: markdown
+        title: Directions
+        content: >
+          {% set steps = state_attr('sensor.mealie_todays_recipe', 'recipeInstructions') or [] %}
+          {% if steps %}
+          {% for step in steps %}
+          **Step {{ loop.index }}**
+
+          {{ step.text if step.text is defined else step }}
+
+          {% endfor %}
+          {% else %}
+          Directions are loading.
+          {% endif %}
+        card_mod:
+          style: |
+            ha-card {
+              border-radius: 28px;
+              padding: 8px 12px 12px;
               background: linear-gradient(145deg, rgba(28, 28, 30, 0.96), rgba(16, 16, 18, 0.98));
               border: 1px solid rgba(255, 255, 255, 0.07);
               box-shadow: 0 18px 36px rgba(0, 0, 0, 0.26);

@@ -78,3 +78,23 @@ rest:
         json_attributes:
           - items
         unique_id: mealie_shopping_items
+
+  - resource_template: "http://192.168.86.47:9925/api/recipes/{{ states('sensor.mealie_todays_meal_slug') }}"
+    method: GET
+    headers:
+      Authorization: !secret mealie_api_token
+    scan_interval: 900
+    sensor:
+      - name: mealie_todays_recipe
+        value_template: "{{ value_json.name if value_json is mapping and 'name' in value_json else states('sensor.mealie_todays_meal') }}"
+        json_attributes:
+          - slug
+          - description
+          - recipeIngredient
+          - recipeInstructions
+          - totalTime
+          - prepTime
+          - performTime
+          - recipeCategory
+          - recipeYield
+        unique_id: mealie_todays_recipe
