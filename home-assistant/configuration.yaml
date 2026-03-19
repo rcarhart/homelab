@@ -79,7 +79,7 @@ rest:
           - items
         unique_id: mealie_shopping_items
 
-  - resource_template: "http://192.168.86.47:9925/api/recipes/{{ states('sensor.mealie_todays_meal_slug') }}"
+  - resource_template: "http://192.168.86.47:9925/api/recipes/{{ states('sensor.mealie_todays_meal_id') }}"
     method: GET
     headers:
       Authorization: !secret mealie_api_token
