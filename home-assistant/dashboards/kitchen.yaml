@@ -68,16 +68,6 @@ views:
             alignment: justify
             chips:
               - type: template
-                entity: person.ross_carhart
-                icon: mdi:home-account
-                icon_color: >
-                  {{ 'green' if is_state('person.ross_carhart', 'home') else 'grey' }}
-                content: >
-                  {{ 'Home' if is_state('person.ross_carhart', 'home') else states('person.ross_carhart') | title }}
-                tap_action:
-                  action: more-info
-
-              - type: template
                 entity: sensor.mealie_todays_meal
                 icon: mdi:silverware-fork-knife
                 icon_color: deep-orange
@@ -92,6 +82,25 @@ views:
                 icon_color: cyan
                 content: >
                   {{ states('sensor.mealie_shopping_items') }} items
+                tap_action:
+                  action: more-info
+
+              - type: template
+                entity: media_player.kitchen_speaker
+                icon: mdi:music-note
+                icon_color: teal
+                content: >
+                  {% set title = state_attr('media_player.kitchen_speaker', 'media_title') %}
+                  {% set spotify_title = state_attr('media_player.spotify_rcarhart2', 'media_title') %}
+                  {% if title %}
+                    {{ title }}
+                  {% elif spotify_title %}
+                    {{ spotify_title }}
+                  {% elif is_state('media_player.kitchen_speaker', 'playing') %}
+                    Playing
+                  {% else %}
+                    Music idle
+                  {% endif %}
                 tap_action:
                   action: more-info
 
@@ -344,65 +353,15 @@ views:
         view_layout:
           grid-area: media
         cards:
-          - type: custom:mushroom-template-card
-            entity: media_player.kitchen_speaker
-            primary: Kitchen Speaker
-            secondary: >
-              {% set speaker_title = state_attr('media_player.kitchen_speaker', 'media_title') %}
-              {% set speaker_artist = state_attr('media_player.kitchen_speaker', 'media_artist') %}
-              {% set spotify_title = state_attr('media_player.spotify_rcarhart2', 'media_title') %}
-              {% set spotify_artist = state_attr('media_player.spotify_rcarhart2', 'media_artist') %}
-              {% if speaker_title %}
-                {{ speaker_title }}{% if speaker_artist %} - {{ speaker_artist }}{% endif %}
-              {% elif spotify_title %}
-                {{ spotify_title }}{% if spotify_artist %} - {{ spotify_artist }}{% endif %}
-              {% elif is_state('media_player.kitchen_speaker', 'playing') %}
-                Audio is playing on the kitchen speaker.
-              {% else %}
-                Speaker idle
-              {% endif %}
-            icon: mdi:speaker-wireless
-            icon_color: teal
-            multiline_secondary: true
-            fill_container: true
-            tap_action:
-              action: more-info
-            card_mod:
-              style: |
-                ha-card {
-                  border-radius: 28px 28px 0 0;
-                  padding: 10px 12px;
-                  background:
-                    radial-gradient(circle at top right, rgba(38, 166, 154, 0.14), transparent 28%),
-                    linear-gradient(145deg, rgba(28, 28, 30, 0.96), rgba(16, 16, 18, 0.98));
-                  border: 1px solid rgba(255, 255, 255, 0.07);
-                  border-bottom: none;
-                  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.26);
-                }
-                mushroom-shape-icon {
-                  --shape-color: rgba(38, 166, 154, 0.18) !important;
-                }
-                .primary {
-                  font-size: 1.45rem !important;
-                  font-weight: 700 !important;
-                  letter-spacing: -0.03rem;
-                }
-                .secondary {
-                  font-size: 1rem !important;
-                  line-height: 1.55 !important;
-                  opacity: 0.82;
-                }
-
           - type: media-control
             entity: media_player.kitchen_speaker
             card_mod:
               style: |
                 ha-card {
-                  border-radius: 0 0 28px 28px;
+                  border-radius: 28px;
                   overflow: hidden;
                   background: linear-gradient(145deg, rgba(28, 28, 30, 0.96), rgba(16, 16, 18, 0.98));
                   border: 1px solid rgba(255, 255, 255, 0.07);
-                  border-top: none;
                   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.26);
                 }
 
