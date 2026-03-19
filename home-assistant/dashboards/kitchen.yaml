@@ -411,7 +411,38 @@ views:
           {% set ingredients = state_attr('sensor.mealie_todays_recipe', 'recipeIngredient') or [] %}
           {% if ingredients %}
           {% for item in ingredients %}
-          - {{ item.note if item.note is defined and item.note else item.title if item.title is defined else item.originalText if item.originalText is defined else item.food.name if item.food is defined and item.food and item.food.name is defined else item }}
+          - {{
+              item.display
+              if item.display is defined and item.display not in [none, '', 'None']
+              else item.originalText
+              if item.originalText is defined and item.originalText not in [none, '', 'None']
+              else item.note
+              if item.note is defined and item.note not in [none, '', 'None']
+              else (
+                ((item.quantity | string) ~ ' ')
+                if item.quantity is defined and item.quantity not in [none, '', 'None']
+                else ''
+              )
+              ~ (
+                (item.unit.name ~ ' ')
+                if item.unit is defined and item.unit and item.unit.name is defined and item.unit.name not in [none, '', 'None']
+                else (item.unit ~ ' ')
+                if item.unit is defined and item.unit not in [none, '', 'None']
+                else ''
+              )
+              ~ (
+                item.food.name
+                if item.food is defined and item.food and item.food.name is defined and item.food.name not in [none, '', 'None']
+                else item.title
+                if item.title is defined and item.title not in [none, '', 'None']
+                else 'Ingredient'
+              )
+              ~ (
+                ' - ' ~ item.preparation
+                if item.preparation is defined and item.preparation not in [none, '', 'None']
+                else ''
+              )
+            }}
           {% endfor %}
           {% else %}
           Ingredients are loading.
