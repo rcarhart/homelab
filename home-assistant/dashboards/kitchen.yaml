@@ -126,7 +126,7 @@ views:
         view_layout:
           grid-area: meal
         entity: camera.recipes_rosscarhart_com
-        aspect_ratio: 16/8
+        aspect_ratio: 16/9
         show_entity_picture: true
         show_name: false
         show_state: false
@@ -141,7 +141,7 @@ views:
             - border: 1px solid rgba(255,255,255,0.08)
             - box-shadow: 0 22px 44px rgba(0,0,0,0.34)
             - background: linear-gradient(145deg, rgba(26,26,28,0.96), rgba(14,14,16,0.98))
-            - height: 240px
+            - height: 300px
             - position: relative
           entity_picture:
             - width: 100%
@@ -318,15 +318,7 @@ views:
               const rows = weeklyMeals.map((item) => {
                 const recipe = item.recipe || {};
                 const mealName = recipe.name || item.title || "Meal planned";
-                const slug = recipe.slug || "";
                 const day = item.date ? formatter.format(new Date(`${item.date}T12:00:00`)) : "Planned";
-                const links = slug
-                  ? `<div style="margin-top:8px; display:flex; gap:10px; align-items:center; font-size:0.86rem;">
-                       <a href="https://recipes.rosscarhart.com/g/home/r/${slug}" style="color:#f0a95b; text-decoration:none;">Recipe</a>
-                       <span style="color:rgba(255,255,255,0.28);">/</span>
-                       <a href="https://recipes.rosscarhart.com/g/home/r/${slug}/cook" style="color:#f0a95b; text-decoration:none;">Cook</a>
-                     </div>`
-                  : ``;
                 return `
                   <div style="min-width:148px; padding:12px 14px; border-radius:20px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06);">
                     <div style="color:rgba(255,255,255,0.56); font-size:0.78rem; font-weight:700; letter-spacing:0.08rem; text-transform:uppercase; margin-bottom:8px;">
@@ -335,7 +327,6 @@ views:
                     <div style="color:rgba(255,255,255,0.97); font-size:0.92rem; line-height:1.3; font-weight:600;">
                       ${mealName}
                     </div>
-                    ${links}
                   </div>
                 `;
               }).join("");
