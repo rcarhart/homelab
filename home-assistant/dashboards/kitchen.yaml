@@ -1,7 +1,6 @@
 # Live kitchen dashboard.
 # Home Assistant is currently configured to load this file.
 # Layout overview:
-# - Header: title and chips
 # - Weekly: current week's meal plan
 # - Meal: featured dinner card
 # - Shopping: Mealie to-do list
@@ -17,7 +16,6 @@ views:
     layout:
       grid-template-columns: repeat(12, minmax(0, 1fr))
       grid-template-areas: |
-        "header header header header header header header header header header header header"
         "weekly weekly weekly weekly weekly weekly weekly weekly weekly weekly weekly weekly"
         "meal meal meal meal meal meal shopping shopping shopping shopping shopping shopping"
         "meal meal meal meal meal meal media media media media media media"
@@ -28,78 +26,12 @@ views:
         "(max-width: 1100px)":
           grid-template-columns: 1fr
           grid-template-areas: |
-            "header"
             "weekly"
             "meal"
             "shopping"
             "media"
 
     cards:
-      # Header stack:
-      # Status chips for meal, shopping count, music, and weather.
-      - type: vertical-stack
-        view_layout:
-          grid-area: header
-        cards:
-          - type: custom:mushroom-chips-card
-            alignment: justify
-            chips:
-              - type: template
-                entity: sensor.mealie_todays_meal
-                icon: mdi:silverware-fork-knife
-                icon_color: deep-orange
-                content: >
-                  {{ states('sensor.mealie_todays_meal') }}
-                tap_action:
-                  action: none
-
-              - type: template
-                entity: sensor.mealie_shopping_items
-                icon: mdi:cart-outline
-                icon_color: cyan
-                content: >
-                  {{ states('sensor.mealie_shopping_items') }} items
-                tap_action:
-                  action: more-info
-
-              - type: template
-                entity: media_player.kitchen_speaker
-                icon: mdi:music-note
-                icon_color: teal
-                content: >
-                  {% set title = state_attr('media_player.kitchen_speaker', 'media_title') %}
-                  {% set spotify_title = state_attr('media_player.spotify_rcarhart2', 'media_title') %}
-                  {% if title %}
-                    {{ title }}
-                  {% elif spotify_title %}
-                    {{ spotify_title }}
-                  {% elif is_state('media_player.kitchen_speaker', 'playing') %}
-                    Playing
-                  {% else %}
-                    Music idle
-                  {% endif %}
-                tap_action:
-                  action: more-info
-
-              - type: template
-                entity: weather.forecast_home
-                icon: mdi:weather-partly-cloudy
-                icon_color: blue
-                content: >
-                  {{ state_attr('weather.forecast_home', 'temperature') }}{{ state_attr('weather.forecast_home', 'temperature_unit') if state_attr('weather.forecast_home', 'temperature_unit') else '' }}
-                tap_action:
-                  action: more-info
-            card_mod:
-              style: |
-                ha-card {
-                  padding: 8px;
-                  border-radius: 24px;
-                  background: var(--kitchen-glass);
-                  backdrop-filter: blur(18px);
-                  border: 1px solid var(--kitchen-glass-border);
-                  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.16);
-                }
-
       # Featured dinner card:
       # Uses the Mealie recipe image camera entity and opens the recipe subview.
       - type: custom:button-card
