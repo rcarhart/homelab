@@ -255,122 +255,25 @@ views:
             ]]]
 
       # Media section:
-      # Album art hero plus compact controls for the kitchen speaker.
-      - type: vertical-stack
+      # Spotify section:
+      # Replaces the generic kitchen speaker cards with the SpotifyPlus player.
+      - type: custom:spotifyplus-card
         view_layout:
           grid-area: media
-        cards:
-          - type: custom:button-card
-            entity: media_player.kitchen_speaker
-            show_name: false
-            show_state: false
-            show_entity_picture: false
-            tap_action:
-              action: more-info
-            styles:
-              card:
-                - padding: 0
-                - height: 190px
-                - border-radius: 28px
-                - overflow: hidden
-                - border: 1px solid var(--kitchen-glass-border)
-                - background: rgba(18, 20, 24, 0.82)
-                - box-shadow: 0 24px 44px rgba(0, 0, 0, 0.24)
-              custom_fields:
-                art:
-                  - position: absolute
-                  - inset: 0
-                shade:
-                  - position: absolute
-                  - inset: 0
-                  - background: linear-gradient(90deg, rgba(8, 10, 12, 0.92) 0%, rgba(8, 10, 12, 0.66) 38%, rgba(8, 10, 12, 0.18) 100%)
-                glow:
-                  - position: absolute
-                  - inset: auto auto 18px 18px
-                  - width: 84px
-                  - height: 84px
-                  - border-radius: 22px
-                  - background: rgba(125, 211, 252, 0.14)
-                  - filter: blur(12px)
-                panel:
-                  - position: absolute
-                  - left: 18px
-                  - right: 18px
-                  - bottom: 18px
-                  - padding: 14px 16px
-                  - border-radius: 22px
-                  - background: var(--kitchen-glass)
-                  - backdrop-filter: blur(18px)
-                  - border: 1px solid var(--kitchen-glass-border)
-                  - text-align: left
-            custom_fields:
-              art: >
-                [[[
-                  const art = entity?.attributes?.entity_picture || '';
-                  if (!art) {
-                    return `<div style="width:100%; height:100%; background:
-                      radial-gradient(circle at 20% 20%, rgba(125,211,252,0.30), transparent 28%),
-                      radial-gradient(circle at 80% 20%, rgba(200,107,60,0.24), transparent 30%),
-                      linear-gradient(135deg, rgba(28,30,34,0.92), rgba(16,18,22,0.98));"></div>`;
-                  }
-                  return `<div style="width:100%; height:100%; background:
-                    linear-gradient(135deg, rgba(12,14,16,0.18), rgba(12,14,16,0.45)),
-                    url('${art}') center/cover no-repeat;"></div>`;
-                ]]]
-              shade: ""
-              glow: ""
-              panel: >
-                [[[
-                  const title =
-                    entity?.attributes?.media_title ||
-                    states["media_player.spotify_rcarhart2"]?.attributes?.media_title ||
-                    "Kitchen Speaker";
-                  const artist =
-                    entity?.attributes?.media_artist ||
-                    states["media_player.spotify_rcarhart2"]?.attributes?.media_artist ||
-                    (entity?.state === "playing" ? "Now playing" : "Ready for music");
-                  const app = entity?.attributes?.app_name || "Kitchen audio";
-                  return `
-                    <div style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.10rem; color:rgba(255,255,255,0.62); margin-bottom:6px;">
-                      ${app}
-                    </div>
-                    <div style="font-size:1.22rem; font-weight:700; line-height:1.15; color:rgba(255,255,255,0.98); margin-bottom:4px;">
-                      ${title}
-                    </div>
-                    <div style="font-size:0.92rem; color:rgba(255,255,255,0.74);">
-                      ${artist}
-                    </div>
-                  `;
-                ]]]
-            card_mod:
-              style: |
-                ha-card {
-                  backdrop-filter: blur(24px);
-                }
-
-          - type: custom:mushroom-media-player-card
-            entity: media_player.kitchen_speaker
-            name: Kitchen Speaker
-            use_media_info: true
-            show_volume_level: false
-            volume_controls:
-              - volume_buttons
-              - mute
-            media_controls:
-              - previous
-              - play_pause_stop
-              - next
-            card_mod:
-              style: |
-                ha-card {
-                  margin-top: 12px;
-                  border-radius: 28px;
-                  overflow: hidden;
-                  background: var(--kitchen-glass);
-                  backdrop-filter: blur(18px);
-                  border: 1px solid var(--kitchen-glass-border);
-                  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.2);
-                }
+        entity: media_player.spotify_rcarhart2
+        sections:
+          - player
+          - devices
+          - playlistfavorites
+          - recents
+        sectionDefault: player
+        playerHeaderTitle: "{player.source}"
+        playerHeaderArtistTrack: "{player.media_artist} - {player.media_title}"
+        playerHeaderAlbum: "{player.media_album_name}"
+        playerHeaderNoMediaPlayingText: "Ready for music"
+        deviceBrowserItemsPerRow: 1
+        playlistFavBrowserItemsPerRow: 2
+        recentBrowserItemsPerRow: 2
 
   # Recipe subview:
   # Opens from the featured dinner card and keeps kiosk users inside Home Assistant.
