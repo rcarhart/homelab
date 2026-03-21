@@ -477,9 +477,25 @@ views:
           {% set steps = state_attr('sensor.mealie_todays_recipe', 'recipeInstructions') or [] %}
           {% if steps %}
           {% for step in steps %}
+          {% set step_text =
+            step.text
+            if step is mapping and step.text is defined and step.text not in [none, '', 'None']
+            else step.instruction
+            if step is mapping and step.instruction is defined and step.instruction not in [none, '', 'None']
+            else step.description
+            if step is mapping and step.description is defined and step.description not in [none, '', 'None']
+            else step.summary
+            if step is mapping and step.summary is defined and step.summary not in [none, '', 'None']
+            else step.originalText
+            if step is mapping and step.originalText is defined and step.originalText not in [none, '', 'None']
+            else step.name
+            if step is mapping and step.name is defined and step.name not in [none, '', 'None']
+            else step
+            if step is string
+            else '' %}
           **Step {{ loop.index }}**
 
-          {{ step.text if step.text is defined else step }}
+          {{ step_text }}
 
           {% endfor %}
           {% else %}
