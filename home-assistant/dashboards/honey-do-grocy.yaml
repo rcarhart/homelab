@@ -138,43 +138,18 @@ views:
       - type: markdown
         view_layout:
           grid-area: chores
-        content: >
+        content: |
           {% set chores = state_attr('sensor.grocy_chores', 'chores') | default([], true) %}
           ## Recurring Chores
 
           {% if chores | count == 0 %}
           No Grocy chores are visible yet. Once the integration is connected and entities are enabled, your recurring chores will appear here.
           {% else %}
-          <table>
-            <thead>
-              <tr>
-                <th align="left">Chore</th>
-                <th align="left">Next Due</th>
-                <th align="left">Assignee</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for chore in chores | sort(attribute='next_estimated_execution_time') %}
-              <tr>
-                <td>{{ chore.name | default('Unnamed chore') }}</td>
-                <td>
-                  {% if chore.next_estimated_execution_time is defined and chore.next_estimated_execution_time %}
-                    {{ chore.next_estimated_execution_time[:10] }}
-                  {% else %}
-                    Unscheduled
-                  {% endif %}
-                </td>
-                <td>
-                  {% if chore.user_id is defined and chore.user_id %}
-                    User {{ chore.user_id }}
-                  {% else %}
-                    Unassigned
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
+          | Chore | Next Due | Assignee |
+          | --- | --- | --- |
+          {% for chore in chores | sort(attribute='next_estimated_execution_time') %}
+          | {{ chore.name | default('Unnamed chore') }} | {% if chore.next_estimated_execution_time is defined and chore.next_estimated_execution_time %}{{ chore.next_estimated_execution_time[:10] }}{% else %}Unscheduled{% endif %} | {% if chore.user_id is defined and chore.user_id %}User {{ chore.user_id }}{% else %}Unassigned{% endif %} |
+          {% endfor %}
           {% endif %}
         card_mod:
           style: |
@@ -185,53 +160,23 @@ views:
             }
             table {
               width: 100%;
-              border-collapse: collapse;
-            }
-            th, td {
-              padding: 10px 8px;
-              border-bottom: 1px solid rgba(124, 108, 97, 0.12);
             }
 
       - type: markdown
         view_layout:
           grid-area: projects
-        content: >
+        content: |
           {% set tasks = state_attr('sensor.grocy_tasks', 'tasks') | default([], true) %}
           ## Projects
 
           {% if tasks | count == 0 %}
           No Grocy projects are visible yet. Once your task entities are enabled, your dated honey-do projects will appear here.
           {% else %}
-          <table>
-            <thead>
-              <tr>
-                <th align="left">Project</th>
-                <th align="left">Due</th>
-                <th align="left">Category</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for task in tasks | sort(attribute='due_date') %}
-              <tr>
-                <td>{{ task.name | default('Unnamed task') }}</td>
-                <td>
-                  {% if task.due_date is defined and task.due_date %}
-                    {{ task.due_date }}
-                  {% else %}
-                    No due date
-                  {% endif %}
-                </td>
-                <td>
-                  {% if task.category_id is defined and task.category_id %}
-                    Category {{ task.category_id }}
-                  {% else %}
-                    General
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
+          | Project | Due | Category |
+          | --- | --- | --- |
+          {% for task in tasks | sort(attribute='due_date') %}
+          | {{ task.name | default('Unnamed task') }} | {% if task.due_date is defined and task.due_date %}{{ task.due_date[:10] }}{% else %}No due date{% endif %} | {% if task.category_id is defined and task.category_id %}Category {{ task.category_id }}{% else %}General{% endif %} |
+          {% endfor %}
           {% endif %}
         card_mod:
           style: |
@@ -242,9 +187,4 @@ views:
             }
             table {
               width: 100%;
-              border-collapse: collapse;
-            }
-            th, td {
-              padding: 10px 8px;
-              border-bottom: 1px solid rgba(124, 108, 97, 0.12);
             }
