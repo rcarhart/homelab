@@ -25,6 +25,11 @@ If you are running this on the same machine as Home Assistant and keeping the ex
 
 - `http://192.168.86.47:9192`
 
+This is the canonical Grocy URL for this homelab right now and is also documented in:
+
+- `docs/honey-do-dashboard.md`
+- `home-assistant/dashboards/honey-do-grocy.yaml`
+
 ## First login
 
 Default credentials from the LinuxServer image:
@@ -44,6 +49,26 @@ After logging in:
    - `sensor.grocy_chores`
    - `binary_sensor.grocy_overdue_tasks`
    - `binary_sensor.grocy_overdue_chores`
+
+## Seed household data
+
+There is a ready-to-run seed script for the Honey Do setup:
+
+- `scripts/seed-honey-do.ps1`
+
+Run it from the server with your current API key:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\seed-honey-do.ps1 -ApiKey "PASTE_NEW_API_KEY_HERE"
+```
+
+It creates:
+
+- Ross and Kelly task categories
+- the initial dated project tasks
+- the recurring chores
+
+Owner is stored in the task/chore name for simplicity.
 
 ## Data layout
 

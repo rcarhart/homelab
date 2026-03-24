@@ -20,7 +20,7 @@ Features:
 
 ## Grocy Version
 
-The Grocy version is now wired for the expected Grocy entities and the custom integration has been copied into:
+The Grocy version is wired for the expected Grocy entities and the custom integration has been copied into:
 
 - `home-assistant/custom_components/grocy`
 
@@ -32,9 +32,10 @@ Recommended Grocy modeling:
 
 - recurring chores as Grocy chores
 - one-off honey-do items as Grocy tasks
-- Ross and Kelly as assignment labels, categories, or task naming convention
+- Ross and Kelly as task categories
+- owner also included in task names for clarity
 
-Home Assistant setup after restart:
+Home Assistant setup:
 
 1. Add the `Grocy` integration in Settings > Devices & Services
 2. Use URL `http://192.168.86.47`
@@ -50,26 +51,45 @@ The Grocy dashboard uses summary helpers from:
 
 - `packages/grocy_honey_do.yaml`
 
+Canonical Grocy URL for this homelab:
+
+- `http://192.168.86.47:9192`
+
+This is also documented in:
+
+- `app/grocy/README.md`
+- `home-assistant/dashboards/honey-do-grocy.yaml`
+
+Seed script for the initial household setup:
+
+- `app/grocy/scripts/seed-honey-do.ps1`
+
+Run it on the server:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\seed-honey-do.ps1 -ApiKey "PASTE_NEW_API_KEY_HERE"
+```
+
 ## Initial Projects
 
-- Kitchen Countertops — Kelly — 2026-07-01
-- Basement Sliding Doors — Ross — 2026-07-01
-- Mailbox Sign — Kelly — 2026-06-01
-- Bathtub Caulking — Ross — 2026-08-01
-- Recessed Lights — Ross — 2026-10-01
-- Upstairs Air Condition — Ross — 2026-05-01
-- Kitchen Cabinet Painting — Kelly — 2026-05-01
-- Dining Room Cabinet Build — Ross — 2026-06-15
-- Dining Room Cabinet Organization — Kelly — 2026-07-01
-- Sell or Toss Wedding Decorations — Kelly — 2026-06-01
-- Remove Clutter — Kelly — 2026-06-01
+- Kitchen Countertops - Kelly - 2026-07-01
+- Basement Sliding Doors - Ross - 2026-07-01
+- Mailbox Sign - Kelly - 2026-06-01
+- Bathtub Caulking - Ross - 2026-08-01
+- Recessed Lights - Ross - 2026-10-01
+- Upstairs Air Condition - Ross - 2026-05-01
+- Kitchen Cabinet Painting - Kelly - 2026-05-01
+- Dining Room Cabinet Build - Ross - 2026-06-15
+- Dining Room Cabinet Organization - Kelly - 2026-07-01
+- Sell or Toss Wedding Decorations - Kelly - 2026-06-01
+- Remove Clutter - Kelly - 2026-06-01
 
 ## Recurring Chores
 
-- Walk the dog
-- Vacuum
-- Clean upstairs bathroom
-- Clean living room bathroom
-- Clean downstairs bathroom
-- Wash sheets
-- Fold laundry
+- Walk the dog - daily
+- Vacuum - every 2 days in the initial seed
+- Clean upstairs bathroom - weekly
+- Clean living room bathroom - weekly
+- Clean downstairs bathroom - weekly
+- Wash sheets - weekly
+- Kelly - Fold laundry - weekly
