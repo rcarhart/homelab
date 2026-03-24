@@ -28,50 +28,141 @@ input_select:
     options: [Unclaimed, Ross, Kelly]
     initial: Kelly
 
+input_boolean:
+  grocy_done_walk_the_dog:
+    name: Grocy Walk the Dog Done
+  grocy_done_vacuum:
+    name: Grocy Vacuum Done
+  grocy_done_clean_upstairs_bathroom:
+    name: Grocy Clean Upstairs Bathroom Done
+  grocy_done_clean_living_room_bathroom:
+    name: Grocy Clean Living Room Bathroom Done
+  grocy_done_clean_downstairs_bathroom:
+    name: Grocy Clean Downstairs Bathroom Done
+  grocy_done_wash_sheets:
+    name: Grocy Wash Sheets Done
+  grocy_done_fold_laundry:
+    name: Grocy Fold Laundry Done
+  grocy_done_upstairs_air_condition:
+    name: Grocy Upstairs Air Condition Done
+  grocy_done_kitchen_cabinet_painting:
+    name: Grocy Kitchen Cabinet Painting Done
+  grocy_done_mailbox_sign:
+    name: Grocy Mailbox Sign Done
+  grocy_done_sell_or_throw_away_wedding_decorations:
+    name: Grocy Wedding Decorations Done
+  grocy_done_remove_clutter:
+    name: Grocy Remove Clutter Done
+  grocy_done_dining_room_cabinet_build:
+    name: Grocy Dining Room Cabinet Build Done
+  grocy_done_kitchen_countertops:
+    name: Grocy Kitchen Countertops Done
+  grocy_done_basement_sliding_doors:
+    name: Grocy Basement Sliding Doors Done
+  grocy_done_dining_room_cabinet_organization:
+    name: Grocy Dining Room Cabinet Organization Done
+  grocy_done_bathtub_caulking:
+    name: Grocy Bathtub Caulking Done
+  grocy_done_recessed_lights:
+    name: Grocy Recessed Lights Done
+
 template:
   - sensor:
       - name: honey_do_grocy_projects_open
         unique_id: honey_do_grocy_projects_open
-        state: "{{ states('sensor.grocy_tasks') | int(0) }}"
+        state: >
+          {{
+            [
+              states('input_boolean.grocy_done_upstairs_air_condition'),
+              states('input_boolean.grocy_done_kitchen_cabinet_painting'),
+              states('input_boolean.grocy_done_mailbox_sign'),
+              states('input_boolean.grocy_done_sell_or_throw_away_wedding_decorations'),
+              states('input_boolean.grocy_done_remove_clutter'),
+              states('input_boolean.grocy_done_dining_room_cabinet_build'),
+              states('input_boolean.grocy_done_kitchen_countertops'),
+              states('input_boolean.grocy_done_basement_sliding_doors'),
+              states('input_boolean.grocy_done_dining_room_cabinet_organization'),
+              states('input_boolean.grocy_done_bathtub_caulking'),
+              states('input_boolean.grocy_done_recessed_lights')
+            ] | reject('eq', 'on') | list | count
+          }}
+      - name: honey_do_grocy_projects_completed
+        unique_id: honey_do_grocy_projects_completed
+        state: >
+          {{
+            [
+              states('input_boolean.grocy_done_upstairs_air_condition'),
+              states('input_boolean.grocy_done_kitchen_cabinet_painting'),
+              states('input_boolean.grocy_done_mailbox_sign'),
+              states('input_boolean.grocy_done_sell_or_throw_away_wedding_decorations'),
+              states('input_boolean.grocy_done_remove_clutter'),
+              states('input_boolean.grocy_done_dining_room_cabinet_build'),
+              states('input_boolean.grocy_done_kitchen_countertops'),
+              states('input_boolean.grocy_done_basement_sliding_doors'),
+              states('input_boolean.grocy_done_dining_room_cabinet_organization'),
+              states('input_boolean.grocy_done_bathtub_caulking'),
+              states('input_boolean.grocy_done_recessed_lights')
+            ] | select('eq', 'on') | list | count
+          }}
       - name: honey_do_grocy_projects_overdue
         unique_id: honey_do_grocy_projects_overdue
         state: "{{ state_attr('binary_sensor.grocy_overdue_tasks', 'count') | default(0, true) | int(0) }}"
       - name: honey_do_grocy_chores_open
         unique_id: honey_do_grocy_chores_open
-        state: "{{ states('sensor.grocy_chores') | int(0) }}"
-      - name: honey_do_grocy_chores_overdue
-        unique_id: honey_do_grocy_chores_overdue
-        state: "{{ state_attr('binary_sensor.grocy_overdue_chores', 'count') | default(0, true) | int(0) }}"
+        state: >
+          {{
+            [
+              states('input_boolean.grocy_done_walk_the_dog'),
+              states('input_boolean.grocy_done_vacuum'),
+              states('input_boolean.grocy_done_clean_upstairs_bathroom'),
+              states('input_boolean.grocy_done_clean_living_room_bathroom'),
+              states('input_boolean.grocy_done_clean_downstairs_bathroom'),
+              states('input_boolean.grocy_done_wash_sheets'),
+              states('input_boolean.grocy_done_fold_laundry')
+            ] | reject('eq', 'on') | list | count
+          }}
+      - name: honey_do_grocy_chores_completed
+        unique_id: honey_do_grocy_chores_completed
+        state: >
+          {{
+            [
+              states('input_boolean.grocy_done_walk_the_dog'),
+              states('input_boolean.grocy_done_vacuum'),
+              states('input_boolean.grocy_done_clean_upstairs_bathroom'),
+              states('input_boolean.grocy_done_clean_living_room_bathroom'),
+              states('input_boolean.grocy_done_clean_downstairs_bathroom'),
+              states('input_boolean.grocy_done_wash_sheets'),
+              states('input_boolean.grocy_done_fold_laundry')
+            ] | select('eq', 'on') | list | count
+          }}
       - name: honey_do_grocy_due_today
         unique_id: honey_do_grocy_due_today
         state: >
           {% set today = now().strftime('%Y-%m-%d') %}
           {% set tasks = state_attr('sensor.grocy_tasks', 'tasks') | default([], true) %}
           {% set chores = state_attr('sensor.grocy_chores', 'chores') | default([], true) %}
-          {% set due_tasks = tasks | selectattr('due_date', 'defined') | selectattr('due_date', 'equalto', today) | list | count %}
-          {% set due_chores = chores
-            | selectattr('next_estimated_execution_time', 'defined')
-            | selectattr('next_estimated_execution_time', 'search', today)
-            | list | count %}
+          {% set due_tasks = tasks | selectattr('due_date', 'defined') | selectattr('due_date', 'search', today) | list | count %}
+          {% set due_chores = chores | selectattr('next_estimated_execution_time', 'defined') | selectattr('next_estimated_execution_time', 'search', today) | list | count %}
           {{ due_tasks + due_chores }}
       - name: honey_do_grocy_unassigned_chores
         unique_id: honey_do_grocy_unassigned_chores
         state: >
-          {% set claims = [
-            states('input_select.grocy_claim_walk_the_dog'),
-            states('input_select.grocy_claim_vacuum'),
-            states('input_select.grocy_claim_clean_upstairs_bathroom'),
-            states('input_select.grocy_claim_clean_living_room_bathroom'),
-            states('input_select.grocy_claim_clean_downstairs_bathroom'),
-            states('input_select.grocy_claim_wash_sheets'),
-            states('input_select.grocy_claim_fold_laundry')
+          {% set pairs = [
+            (states('input_select.grocy_claim_walk_the_dog'), states('input_boolean.grocy_done_walk_the_dog')),
+            (states('input_select.grocy_claim_vacuum'), states('input_boolean.grocy_done_vacuum')),
+            (states('input_select.grocy_claim_clean_upstairs_bathroom'), states('input_boolean.grocy_done_clean_upstairs_bathroom')),
+            (states('input_select.grocy_claim_clean_living_room_bathroom'), states('input_boolean.grocy_done_clean_living_room_bathroom')),
+            (states('input_select.grocy_claim_clean_downstairs_bathroom'), states('input_boolean.grocy_done_clean_downstairs_bathroom')),
+            (states('input_select.grocy_claim_wash_sheets'), states('input_boolean.grocy_done_wash_sheets')),
+            (states('input_select.grocy_claim_fold_laundry'), states('input_boolean.grocy_done_fold_laundry'))
           ] %}
-          {{
-            claims
-            | select('eq', 'Unclaimed')
-            | list
-            | count
-          }}
+          {% set ns = namespace(count=0) %}
+          {% for claim, done in pairs %}
+            {% if claim == 'Unclaimed' and done != 'on' %}
+              {% set ns.count = ns.count + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.count }}
 
 script:
   honey_do_grocy_complete_chore:
@@ -80,8 +171,8 @@ script:
     fields:
       chore_name:
         description: Chore name exactly as shown in Grocy.
-      claim_entity:
-        description: Claim helper to reset after completion.
+      complete_entity:
+        description: Completion helper to turn on.
     variables:
       chore: >
         {{
@@ -100,11 +191,9 @@ script:
           chore_id: "{{ chore_id }}"
           done_by: "0"
           track_execution_now: true
-      - service: input_select.select_option
+      - service: input_boolean.turn_on
         target:
-          entity_id: "{{ claim_entity }}"
-        data:
-          option: Unclaimed
+          entity_id: "{{ complete_entity }}"
 
   honey_do_grocy_complete_task:
     alias: Honey Do Grocy Complete Task
@@ -112,6 +201,8 @@ script:
     fields:
       task_name:
         description: Task name exactly as shown in Grocy.
+      complete_entity:
+        description: Completion helper to turn on.
     variables:
       task: >
         {{
@@ -128,3 +219,44 @@ script:
       - service: grocy.complete_task
         data:
           task_id: "{{ task_id }}"
+      - service: input_boolean.turn_on
+        target:
+          entity_id: "{{ complete_entity }}"
+
+automation:
+  - id: honey_do_grocy_reset_recurring_weekly
+    alias: Honey Do Grocy Reset Recurring Weekly
+    trigger:
+      - platform: time
+        at: "05:00:00"
+    condition:
+      - condition: time
+        weekday:
+          - mon
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id:
+            - input_boolean.grocy_done_walk_the_dog
+            - input_boolean.grocy_done_vacuum
+            - input_boolean.grocy_done_clean_upstairs_bathroom
+            - input_boolean.grocy_done_clean_living_room_bathroom
+            - input_boolean.grocy_done_clean_downstairs_bathroom
+            - input_boolean.grocy_done_wash_sheets
+            - input_boolean.grocy_done_fold_laundry
+      - service: input_select.select_option
+        target:
+          entity_id:
+            - input_select.grocy_claim_walk_the_dog
+            - input_select.grocy_claim_vacuum
+            - input_select.grocy_claim_clean_upstairs_bathroom
+            - input_select.grocy_claim_clean_living_room_bathroom
+            - input_select.grocy_claim_clean_downstairs_bathroom
+            - input_select.grocy_claim_wash_sheets
+        data:
+          option: Unclaimed
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.grocy_claim_fold_laundry
+        data:
+          option: Kelly
