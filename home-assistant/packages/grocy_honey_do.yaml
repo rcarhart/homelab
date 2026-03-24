@@ -1,3 +1,33 @@
+input_select:
+  grocy_claim_walk_the_dog:
+    name: Walk the Dog Claim
+    options: [Unclaimed, Ross, Kelly]
+    initial: Unclaimed
+  grocy_claim_vacuum:
+    name: Vacuum Claim
+    options: [Unclaimed, Ross, Kelly]
+    initial: Unclaimed
+  grocy_claim_clean_upstairs_bathroom:
+    name: Clean Upstairs Bathroom Claim
+    options: [Unclaimed, Ross, Kelly]
+    initial: Unclaimed
+  grocy_claim_clean_living_room_bathroom:
+    name: Clean Living Room Bathroom Claim
+    options: [Unclaimed, Ross, Kelly]
+    initial: Unclaimed
+  grocy_claim_clean_downstairs_bathroom:
+    name: Clean Downstairs Bathroom Claim
+    options: [Unclaimed, Ross, Kelly]
+    initial: Unclaimed
+  grocy_claim_wash_sheets:
+    name: Wash Sheets Claim
+    options: [Unclaimed, Ross, Kelly]
+    initial: Unclaimed
+  grocy_claim_fold_laundry:
+    name: Fold Laundry Claim
+    options: [Unclaimed, Ross, Kelly]
+    initial: Kelly
+
 template:
   - sensor:
       - name: honey_do_grocy_projects_open
@@ -27,11 +57,74 @@ template:
       - name: honey_do_grocy_unassigned_chores
         unique_id: honey_do_grocy_unassigned_chores
         state: >
-          {% set chores = state_attr('sensor.grocy_chores', 'chores') | default([], true) %}
+          {% set claims = [
+            states('input_select.grocy_claim_walk_the_dog'),
+            states('input_select.grocy_claim_vacuum'),
+            states('input_select.grocy_claim_clean_upstairs_bathroom'),
+            states('input_select.grocy_claim_clean_living_room_bathroom'),
+            states('input_select.grocy_claim_clean_downstairs_bathroom'),
+            states('input_select.grocy_claim_wash_sheets'),
+            states('input_select.grocy_claim_fold_laundry')
+          ] %}
           {{
-            chores
-            | rejectattr('user_id', 'defined')
+            claims
+            | select('eq', 'Unclaimed')
             | list
             | count
           }}
 
+script:
+  honey_do_grocy_complete_chore:
+    alias: Honey Do Grocy Complete Chore
+    mode: parallel
+    fields:
+      chore_name:
+        description: Chore name exactly as shown in Grocy.
+      claim_entity:
+        description: Claim helper to reset after completion.
+    variables:
+      chore: >
+        {{
+          state_attr('sensor.grocy_chores', 'chores')
+          | default([], true)
+          | selectattr('name', 'equalto', chore_name)
+          | list
+          | first
+        }}
+      chore_id: "{{ chore.id if chore is mapping else none }}"
+    sequence:
+      - condition: template
+        value_template: "{{ chore_id is not none }}"
+      - service: grocy.execute_chore
+        data:
+          chore_id: "{{ chore_id }}"
+          done_by: "0"
+          track_execution_now: true
+      - service: input_select.select_option
+        target:
+          entity_id: "{{ claim_entity }}"
+        data:
+          option: Unclaimed
+
+  honey_do_grocy_complete_task:
+    alias: Honey Do Grocy Complete Task
+    mode: parallel
+    fields:
+      task_name:
+        description: Task name exactly as shown in Grocy.
+    variables:
+      task: >
+        {{
+          state_attr('sensor.grocy_tasks', 'tasks')
+          | default([], true)
+          | selectattr('name', 'equalto', task_name)
+          | list
+          | first
+        }}
+      task_id: "{{ task.id if task is mapping else none }}"
+    sequence:
+      - condition: template
+        value_template: "{{ task_id is not none }}"
+      - service: grocy.complete_task
+        data:
+          task_id: "{{ task_id }}"

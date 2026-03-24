@@ -24,16 +24,13 @@ The Grocy version is wired for the expected Grocy entities and the custom integr
 
 - `home-assistant/custom_components/grocy`
 
-The original cloned source is currently also present in:
-
-- `home-assistant/custom_components/grocy-repo`
-
 Recommended Grocy modeling:
 
 - recurring chores as Grocy chores
 - one-off honey-do items as Grocy tasks
 - Ross and Kelly as task categories
 - owner also included in task names for clarity
+- chore claiming handled in Home Assistant helpers for a better wall-dashboard UX
 
 Home Assistant setup:
 

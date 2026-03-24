@@ -10,9 +10,9 @@ views:
       grid-template-columns: repeat(12, minmax(0, 1fr))
       grid-template-areas: |
         "hero hero hero hero hero hero hero hero hero hero hero hero"
-        "metrics metrics metrics metrics setup setup setup setup status status status status"
+        "metrics metrics metrics metrics metrics metrics metrics metrics metrics metrics metrics metrics"
         "chores chores chores chores chores chores projects projects projects projects projects projects"
-      grid-template-rows: min-content minmax(180px, auto) minmax(360px, auto)
+      grid-template-rows: min-content min-content minmax(420px, auto)
       grid-gap: 20px
       margin: 20px
       mediaquery:
@@ -21,8 +21,6 @@ views:
           grid-template-areas: |
             "hero"
             "metrics"
-            "setup"
-            "status"
             "chores"
             "projects"
 
@@ -32,8 +30,8 @@ views:
           grid-area: hero
         primary: Honey Do Grocy
         secondary: >
-          {{ states('sensor.honey_do_grocy_projects_open') }} projects,
-          {{ states('sensor.honey_do_grocy_chores_open') }} chores,
+          {{ states('sensor.honey_do_grocy_projects_open') }} projects open,
+          {{ states('sensor.honey_do_grocy_chores_open') }} chores tracked,
           {{ states('sensor.honey_do_grocy_due_today') }} due today.
         icon: mdi:clipboard-check-outline
         icon_color: brown
@@ -52,139 +50,279 @@ views:
       - type: grid
         view_layout:
           grid-area: metrics
-        columns: 2
+        columns: 4
         square: false
         cards:
           - type: custom:mushroom-template-card
             primary: Projects
-            secondary: >
-              {{ states('sensor.honey_do_grocy_projects_open') }} open
+            secondary: "{{ states('sensor.honey_do_grocy_projects_open') }} open"
             icon: mdi:hammer-wrench
             icon_color: brown
             fill_container: true
           - type: custom:mushroom-template-card
-            primary: Overdue Projects
-            secondary: >
-              {{ states('sensor.honey_do_grocy_projects_overdue') }} overdue
+            primary: Overdue
+            secondary: "{{ states('sensor.honey_do_grocy_projects_overdue') }} projects"
             icon: mdi:calendar-alert
             icon_color: pink
             fill_container: true
           - type: custom:mushroom-template-card
-            primary: Recurring Chores
-            secondary: >
-              {{ states('sensor.honey_do_grocy_chores_open') }} tracked
+            primary: Recurring
+            secondary: "{{ states('sensor.honey_do_grocy_chores_open') }} chores"
             icon: mdi:refresh-circle
             icon_color: teal
             fill_container: true
           - type: custom:mushroom-template-card
-            primary: Unassigned Chores
-            secondary: >
-              {{ states('sensor.honey_do_grocy_unassigned_chores') }} ready to claim
+            primary: Ready To Claim
+            secondary: "{{ states('sensor.honey_do_grocy_unassigned_chores') }} unclaimed"
             icon: mdi:account-switch-outline
             icon_color: blue
             fill_container: true
 
-      - type: markdown
-        view_layout:
-          grid-area: setup
-        content: |
-          ## Grocy Setup
-
-          The integration files are now installed locally in `custom_components/grocy`.
-
-          Do this in Home Assistant:
-          1. Restart Home Assistant.
-          2. Add the `Grocy` integration in Settings > Devices & Services.
-          3. Use URL `http://192.168.86.47`
-          4. Use port `9192`
-          5. Paste your Grocy API key
-          6. Enable these entities:
-             - `sensor.grocy_tasks`
-             - `sensor.grocy_chores`
-             - `binary_sensor.grocy_overdue_tasks`
-             - `binary_sensor.grocy_overdue_chores`
-
-          I could not reach the Grocy server from this environment, so I was not able to seed the live tasks and chores for you yet.
-        card_mod:
-          style: |
-            ha-card {
-              padding: 20px 22px;
-              border-radius: 28px;
-              background: rgba(245, 235, 224, 0.80);
-            }
-
-      - type: entities
-        view_layout:
-          grid-area: status
-        title: Grocy Entity Status
-        show_header_toggle: false
-        entities:
-          - entity: sensor.grocy_tasks
-            name: Task feed
-          - entity: sensor.grocy_chores
-            name: Chore feed
-          - entity: binary_sensor.grocy_overdue_tasks
-            name: Overdue projects
-          - entity: binary_sensor.grocy_overdue_chores
-            name: Overdue chores
-        state_color: true
-        card_mod:
-          style: |
-            ha-card {
-              border-radius: 28px;
-              background: rgba(245, 235, 224, 0.80);
-            }
-
-      - type: markdown
+      - type: vertical-stack
         view_layout:
           grid-area: chores
-        content: |
-          {% set chores = state_attr('sensor.grocy_chores', 'chores') | default([], true) %}
-          ## Recurring Chores
+        cards:
+          - type: markdown
+            content: |
+              ## Recurring Chores
+              Claim a chore here, then tap the card to mark it done in Grocy.
+            card_mod:
+              style: |
+                ha-card {
+                  padding: 18px 20px;
+                  border-radius: 28px;
+                  background: rgba(245, 235, 224, 0.82);
+                }
+          - type: custom:mushroom-template-card
+            primary: Walk the Dog
+            secondary: "{{ states('input_select.grocy_claim_walk_the_dog') }}"
+            icon: mdi:dog-side
+            icon_color: teal
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_chore
+              data:
+                chore_name: Walk the Dog
+                claim_entity: input_select.grocy_claim_walk_the_dog
+            fill_container: true
+          - type: entity
+            entity: input_select.grocy_claim_walk_the_dog
+            name: Claim owner
+          - type: custom:mushroom-template-card
+            primary: Vacuum
+            secondary: "{{ states('input_select.grocy_claim_vacuum') }}"
+            icon: mdi:vacuum
+            icon_color: teal
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_chore
+              data:
+                chore_name: Vacuum
+                claim_entity: input_select.grocy_claim_vacuum
+            fill_container: true
+          - type: entity
+            entity: input_select.grocy_claim_vacuum
+            name: Claim owner
+          - type: custom:mushroom-template-card
+            primary: Clean Upstairs Bathroom
+            secondary: "{{ states('input_select.grocy_claim_clean_upstairs_bathroom') }}"
+            icon: mdi:shower
+            icon_color: teal
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_chore
+              data:
+                chore_name: Clean Upstairs Bathroom
+                claim_entity: input_select.grocy_claim_clean_upstairs_bathroom
+            fill_container: true
+          - type: entity
+            entity: input_select.grocy_claim_clean_upstairs_bathroom
+            name: Claim owner
+          - type: custom:mushroom-template-card
+            primary: Clean Living Room Bathroom
+            secondary: "{{ states('input_select.grocy_claim_clean_living_room_bathroom') }}"
+            icon: mdi:spray-bottle
+            icon_color: teal
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_chore
+              data:
+                chore_name: Clean Living Room Bathroom
+                claim_entity: input_select.grocy_claim_clean_living_room_bathroom
+            fill_container: true
+          - type: entity
+            entity: input_select.grocy_claim_clean_living_room_bathroom
+            name: Claim owner
+          - type: custom:mushroom-template-card
+            primary: Clean Downstairs Bathroom
+            secondary: "{{ states('input_select.grocy_claim_clean_downstairs_bathroom') }}"
+            icon: mdi:toilet
+            icon_color: teal
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_chore
+              data:
+                chore_name: Clean Downstairs Bathroom
+                claim_entity: input_select.grocy_claim_clean_downstairs_bathroom
+            fill_container: true
+          - type: entity
+            entity: input_select.grocy_claim_clean_downstairs_bathroom
+            name: Claim owner
+          - type: custom:mushroom-template-card
+            primary: Wash Sheets
+            secondary: "{{ states('input_select.grocy_claim_wash_sheets') }}"
+            icon: mdi:bed
+            icon_color: teal
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_chore
+              data:
+                chore_name: Wash Sheets
+                claim_entity: input_select.grocy_claim_wash_sheets
+            fill_container: true
+          - type: entity
+            entity: input_select.grocy_claim_wash_sheets
+            name: Claim owner
+          - type: custom:mushroom-template-card
+            primary: Fold Laundry
+            secondary: "{{ states('input_select.grocy_claim_fold_laundry') }}"
+            icon: mdi:hanger
+            icon_color: brown
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_chore
+              data:
+                chore_name: Kelly - Fold Laundry
+                claim_entity: input_select.grocy_claim_fold_laundry
+            fill_container: true
+          - type: entity
+            entity: input_select.grocy_claim_fold_laundry
+            name: Claim owner
 
-          {% if chores | count == 0 %}
-          No Grocy chores are visible yet. Once the integration is connected and entities are enabled, your recurring chores will appear here.
-          {% else %}
-          | Chore | Next Due | Assignee |
-          | --- | --- | --- |
-          {% for chore in chores | sort(attribute='next_estimated_execution_time') %}
-          | {{ chore.name | default('Unnamed chore') }} | {% if chore.next_estimated_execution_time is defined and chore.next_estimated_execution_time %}{{ chore.next_estimated_execution_time[:10] }}{% else %}Unscheduled{% endif %} | {% if chore.user_id is defined and chore.user_id %}User {{ chore.user_id }}{% else %}Unassigned{% endif %} |
-          {% endfor %}
-          {% endif %}
-        card_mod:
-          style: |
-            ha-card {
-              padding: 20px 22px;
-              border-radius: 28px;
-              background: rgba(245, 235, 224, 0.82);
-            }
-            table {
-              width: 100%;
-            }
-
-      - type: markdown
+      - type: grid
         view_layout:
           grid-area: projects
-        content: |
-          {% set tasks = state_attr('sensor.grocy_tasks', 'tasks') | default([], true) %}
-          ## Projects
-
-          {% if tasks | count == 0 %}
-          No Grocy projects are visible yet. Once your task entities are enabled, your dated honey-do projects will appear here.
-          {% else %}
-          | Project | Due | Category |
-          | --- | --- | --- |
-          {% for task in tasks | sort(attribute='due_date') %}
-          | {{ task.name | default('Unnamed task') }} | {% if task.due_date is defined and task.due_date %}{{ task.due_date[:10] }}{% else %}No due date{% endif %} | {% if task.category_id is defined and task.category_id %}Category {{ task.category_id }}{% else %}General{% endif %} |
-          {% endfor %}
-          {% endif %}
-        card_mod:
-          style: |
-            ha-card {
-              padding: 20px 22px;
-              border-radius: 28px;
-              background: rgba(245, 235, 224, 0.82);
-            }
-            table {
-              width: 100%;
-            }
+        columns: 1
+        square: false
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Ross - Upstairs Air Condition
+            secondary: Due 2026-05-01
+            icon: mdi:air-conditioner
+            icon_color: blue
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_task
+              data:
+                task_name: Ross - Upstairs Air Condition
+            fill_container: true
+          - type: custom:mushroom-template-card
+            primary: Kelly - Kitchen Cabinet Painting
+            secondary: Due 2026-05-01
+            icon: mdi:brush-variant
+            icon_color: brown
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_task
+              data:
+                task_name: Kelly - Kitchen Cabinet Painting
+            fill_container: true
+          - type: custom:mushroom-template-card
+            primary: Kelly - Mailbox Sign
+            secondary: Due 2026-06-01
+            icon: mdi:mailbox-outline
+            icon_color: brown
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_task
+              data:
+                task_name: Kelly - Mailbox Sign
+            fill_container: true
+          - type: custom:mushroom-template-card
+            primary: Kelly - Sell or Throw Away Wedding Decorations
+            secondary: Due 2026-06-01
+            icon: mdi:party-popper
+            icon_color: pink
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_task
+              data:
+                task_name: Kelly - Sell or Throw Away Wedding Decorations
+            fill_container: true
+          - type: custom:mushroom-template-card
+            primary: Kelly - Remove Clutter
+            secondary: Due 2026-06-01
+            icon: mdi:broom
+            icon_color: orange
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_task
+              data:
+                task_name: Kelly - Remove Clutter
+            fill_container: true
+          - type: custom:mushroom-template-card
+            primary: Ross - Dining Room Cabinet Build
+            secondary: Due 2026-06-15
+            icon: mdi:hammer-screwdriver
+            icon_color: blue
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_task
+              data:
+                task_name: Ross - Dining Room Cabinet Build
+            fill_container: true
+          - type: custom:mushroom-template-card
+            primary: Kelly - Kitchen Countertops
+            secondary: Due 2026-07-01
+            icon: mdi:countertop
+            icon_color: brown
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_task
+              data:
+                task_name: Kelly - Kitchen Countertops
+            fill_container: true
+          - type: custom:mushroom-template-card
+            primary: Ross - Basement Sliding Doors
+            secondary: Due 2026-07-01
+            icon: mdi:door-sliding
+            icon_color: blue
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_task
+              data:
+                task_name: Ross - Basement Sliding Doors
+            fill_container: true
+          - type: custom:mushroom-template-card
+            primary: Kelly - Dining Room Cabinet Organization
+            secondary: Due 2026-07-01
+            icon: mdi:bookshelf
+            icon_color: teal
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_task
+              data:
+                task_name: Kelly - Dining Room Cabinet Organization
+            fill_container: true
+          - type: custom:mushroom-template-card
+            primary: Ross - Bathtub Caulking
+            secondary: Due 2026-08-01
+            icon: mdi:bathtub-outline
+            icon_color: blue
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_task
+              data:
+                task_name: Ross - Bathtub Caulking
+            fill_container: true
+          - type: custom:mushroom-template-card
+            primary: Ross - Recessed Lights
+            secondary: Due 2026-10-01
+            icon: mdi:light-recessed
+            icon_color: amber
+            tap_action:
+              action: call-service
+              service: script.honey_do_grocy_complete_task
+              data:
+                task_name: Ross - Recessed Lights
+            fill_container: true
