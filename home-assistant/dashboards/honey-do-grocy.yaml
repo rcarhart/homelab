@@ -1,0 +1,48 @@
+title: Honey Do Grocy
+views:
+  - title: Grocy Honey Do
+    path: honey-do-grocy
+    icon: mdi:clipboard-check-outline
+    theme: Skylight Sand
+    badges: []
+    cards:
+      - type: markdown
+        content: |
+          # Grocy Honey Do
+
+          This dashboard is the Grocy-backed version of the Honey Do board.
+
+          It is designed for:
+          - recurring chores that can be claimed from the dashboard
+          - one-off projects with owners and due dates
+          - better long-term task history than native Home Assistant helpers
+
+          ## Next Step
+          Add the Grocy integration first, then wire your Grocy entities into this dashboard.
+
+          Expected structure:
+          - chores for recurring work like vacuum and wash sheets
+          - tasks for dated projects like basement sliding doors and mailbox sign
+          - Ross and Kelly as assignees/categories inside Grocy
+
+          Once Grocy is connected, we can replace this scaffold with:
+          - overdue section
+          - claimable recurring chores
+          - owner swimlanes
+          - due-soon project board
+        card_mod:
+          style: |
+            ha-card {
+              padding: 24px;
+              border-radius: 30px;
+              background: linear-gradient(160deg, rgba(245, 235, 224, 0.94), rgba(227, 213, 202, 0.78));
+            }
+      - type: entities
+        title: Grocy Wiring Checklist
+        entities:
+          - entity: sensor.honey_do_project_summary
+            name: Native dashboard summary is ready now
+          - entity: sensor.honey_do_recurring_summary
+            name: Native recurring summary is ready now
+        state_color: true
+

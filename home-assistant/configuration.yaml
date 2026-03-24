@@ -3,6 +3,7 @@ homeassistant:
   unit_system: us_customary
   time_zone: America/New_York
   internal_url: http://192.168.86.47:8123
+  packages: !include_dir_named packages
 
 default_config:
 
@@ -31,6 +32,18 @@ lovelace:
       icon: mdi:chef-hat
       show_in_sidebar: true
       filename: dashboards/kitchen.yaml
+    honey-do-dashboard:
+      mode: yaml
+      title: Honey Do
+      icon: mdi:home-heart
+      show_in_sidebar: true
+      filename: dashboards/honey-do.yaml
+    honey-do-grocy-dashboard:
+      mode: yaml
+      title: Honey Do Grocy
+      icon: mdi:clipboard-check-outline
+      show_in_sidebar: true
+      filename: dashboards/honey-do-grocy.yaml
 
 template:
   - sensor:

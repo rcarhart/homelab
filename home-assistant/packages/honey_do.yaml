@@ -1,0 +1,229 @@
+input_select:
+  honey_do_claim_walk_the_dog:
+    name: Walk the Dog Owner
+    options:
+      - Unclaimed
+      - Ross
+      - Kelly
+    initial: Unclaimed
+    icon: mdi:dog-side
+  honey_do_claim_vacuum:
+    name: Vacuum Owner
+    options:
+      - Unclaimed
+      - Ross
+      - Kelly
+    initial: Unclaimed
+    icon: mdi:vacuum
+  honey_do_claim_clean_upstairs_bathroom:
+    name: Clean Upstairs Bathroom Owner
+    options:
+      - Unclaimed
+      - Ross
+      - Kelly
+    initial: Unclaimed
+    icon: mdi:shower
+  honey_do_claim_clean_living_room_bathroom:
+    name: Clean Living Room Bathroom Owner
+    options:
+      - Unclaimed
+      - Ross
+      - Kelly
+    initial: Unclaimed
+    icon: mdi:spray-bottle
+  honey_do_claim_clean_downstairs_bathroom:
+    name: Clean Downstairs Bathroom Owner
+    options:
+      - Unclaimed
+      - Ross
+      - Kelly
+    initial: Unclaimed
+    icon: mdi:toilet
+  honey_do_claim_wash_sheets:
+    name: Wash Sheets Owner
+    options:
+      - Unclaimed
+      - Ross
+      - Kelly
+    initial: Unclaimed
+    icon: mdi:bed
+  honey_do_claim_fold_laundry:
+    name: Fold Laundry Owner
+    options:
+      - Unclaimed
+      - Ross
+      - Kelly
+    initial: Unclaimed
+    icon: mdi:hanger
+
+input_boolean:
+  honey_do_done_kitchen_countertops:
+    name: Kitchen Countertops Complete
+    icon: mdi:countertop
+  honey_do_done_basement_sliding_doors:
+    name: Basement Sliding Doors Complete
+    icon: mdi:door-sliding
+  honey_do_done_mailbox_sign:
+    name: Mailbox Sign Complete
+    icon: mdi:mailbox-outline
+  honey_do_done_bathtub_caulking:
+    name: Bathtub Caulking Complete
+    icon: mdi:bathtub-outline
+  honey_do_done_recessed_lights:
+    name: Recessed Lights Complete
+    icon: mdi:light-recessed
+  honey_do_done_upstairs_air_condition:
+    name: Upstairs Air Condition Complete
+    icon: mdi:air-conditioner
+  honey_do_done_kitchen_cabinet_painting:
+    name: Kitchen Cabinet Painting Complete
+    icon: mdi:brush-variant
+  honey_do_done_dining_room_cabinet_build:
+    name: Dining Room Cabinet Build Complete
+    icon: mdi:hammer-screwdriver
+  honey_do_done_dining_room_cabinet_organization:
+    name: Dining Room Cabinet Organization Complete
+    icon: mdi:bookshelf
+  honey_do_done_sell_wedding_decorations:
+    name: Sell Wedding Decorations Complete
+    icon: mdi:party-popper
+  honey_do_done_remove_clutter:
+    name: Remove Clutter Complete
+    icon: mdi:broom
+  honey_do_done_walk_the_dog:
+    name: Walk the Dog Done
+    icon: mdi:dog-side
+  honey_do_done_vacuum:
+    name: Vacuum Done
+    icon: mdi:vacuum
+  honey_do_done_clean_upstairs_bathroom:
+    name: Clean Upstairs Bathroom Done
+    icon: mdi:shower
+  honey_do_done_clean_living_room_bathroom:
+    name: Clean Living Room Bathroom Done
+    icon: mdi:spray-bottle
+  honey_do_done_clean_downstairs_bathroom:
+    name: Clean Downstairs Bathroom Done
+    icon: mdi:toilet
+  honey_do_done_wash_sheets:
+    name: Wash Sheets Done
+    icon: mdi:bed
+  honey_do_done_fold_laundry:
+    name: Fold Laundry Done
+    icon: mdi:hanger
+
+template:
+  - sensor:
+      - name: honey_do_project_summary
+        unique_id: honey_do_project_summary
+        state: >
+          {{
+            [
+              states('input_boolean.honey_do_done_kitchen_countertops'),
+              states('input_boolean.honey_do_done_basement_sliding_doors'),
+              states('input_boolean.honey_do_done_mailbox_sign'),
+              states('input_boolean.honey_do_done_bathtub_caulking'),
+              states('input_boolean.honey_do_done_recessed_lights'),
+              states('input_boolean.honey_do_done_upstairs_air_condition'),
+              states('input_boolean.honey_do_done_kitchen_cabinet_painting'),
+              states('input_boolean.honey_do_done_dining_room_cabinet_build'),
+              states('input_boolean.honey_do_done_dining_room_cabinet_organization'),
+              states('input_boolean.honey_do_done_sell_wedding_decorations'),
+              states('input_boolean.honey_do_done_remove_clutter')
+            ] | select('eq', 'on') | list | count
+          }}
+        unit_of_measurement: complete
+        attributes:
+          total: 11
+          remaining: >
+            {{ 11 - (states('sensor.honey_do_project_summary') | int(0)) }}
+      - name: honey_do_recurring_summary
+        unique_id: honey_do_recurring_summary
+        state: >
+          {{
+            [
+              states('input_boolean.honey_do_done_walk_the_dog'),
+              states('input_boolean.honey_do_done_vacuum'),
+              states('input_boolean.honey_do_done_clean_upstairs_bathroom'),
+              states('input_boolean.honey_do_done_clean_living_room_bathroom'),
+              states('input_boolean.honey_do_done_clean_downstairs_bathroom'),
+              states('input_boolean.honey_do_done_wash_sheets'),
+              states('input_boolean.honey_do_done_fold_laundry')
+            ] | select('eq', 'on') | list | count
+          }}
+        unit_of_measurement: complete
+        attributes:
+          total: 7
+          claimed: >
+            {{
+              [
+                states('input_select.honey_do_claim_walk_the_dog'),
+                states('input_select.honey_do_claim_vacuum'),
+                states('input_select.honey_do_claim_clean_upstairs_bathroom'),
+                states('input_select.honey_do_claim_clean_living_room_bathroom'),
+                states('input_select.honey_do_claim_clean_downstairs_bathroom'),
+                states('input_select.honey_do_claim_wash_sheets'),
+                states('input_select.honey_do_claim_fold_laundry')
+              ] | reject('eq', 'Unclaimed') | list | count
+            }}
+
+script:
+  honey_do_claim_chore:
+    alias: Honey Do Claim Chore
+    mode: parallel
+    fields:
+      claim_entity:
+        description: The input_select entity for the chore owner.
+      owner:
+        description: Ross, Kelly, or Unclaimed.
+    sequence:
+      - service: input_select.select_option
+        target:
+          entity_id: "{{ claim_entity }}"
+        data:
+          option: "{{ owner }}"
+  honey_do_toggle_done:
+    alias: Honey Do Toggle Done
+    mode: parallel
+    fields:
+      done_entity:
+        description: The input_boolean entity for completion state.
+    sequence:
+      - service: input_boolean.toggle
+        target:
+          entity_id: "{{ done_entity }}"
+
+automation:
+  - id: honey_do_reset_recurring_chores_weekly
+    alias: Honey Do Reset Recurring Chores Weekly
+    trigger:
+      - platform: time
+        at: "05:00:00"
+    condition:
+      - condition: time
+        weekday:
+          - monday
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id:
+            - input_boolean.honey_do_done_walk_the_dog
+            - input_boolean.honey_do_done_vacuum
+            - input_boolean.honey_do_done_clean_upstairs_bathroom
+            - input_boolean.honey_do_done_clean_living_room_bathroom
+            - input_boolean.honey_do_done_clean_downstairs_bathroom
+            - input_boolean.honey_do_done_wash_sheets
+            - input_boolean.honey_do_done_fold_laundry
+      - service: input_select.select_option
+        target:
+          entity_id:
+            - input_select.honey_do_claim_walk_the_dog
+            - input_select.honey_do_claim_vacuum
+            - input_select.honey_do_claim_clean_upstairs_bathroom
+            - input_select.honey_do_claim_clean_living_room_bathroom
+            - input_select.honey_do_claim_clean_downstairs_bathroom
+            - input_select.honey_do_claim_wash_sheets
+            - input_select.honey_do_claim_fold_laundry
+        data:
+          option: Unclaimed
+
