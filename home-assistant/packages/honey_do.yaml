@@ -202,7 +202,7 @@ automation:
     condition:
       - condition: time
         weekday:
-          - monday
+          - mon
     action:
       - service: input_boolean.turn_off
         target:
@@ -226,4 +226,3 @@ automation:
             - input_select.honey_do_claim_fold_laundry
         data:
           option: Unclaimed
-
