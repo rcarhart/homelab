@@ -10,7 +10,7 @@ views:
       grid-template-columns: repeat(12, minmax(0, 1fr))
       grid-template-areas: |
         "hero hero hero hero hero hero hero hero hero hero hero hero"
-        "metrics metrics metrics metrics metrics metrics metrics metrics metrics metrics metrics metrics"
+        "unclaimed unclaimed unclaimed unclaimed unclaimed unclaimed unclaimed unclaimed unclaimed unclaimed unclaimed unclaimed"
         "ross ross ross ross ross ross kelly kelly kelly kelly kelly kelly"
         "done done done done done done done done done done done done"
       grid-template-rows: min-content min-content minmax(520px, auto) minmax(220px, auto)
@@ -21,64 +21,191 @@ views:
           grid-template-columns: 1fr
           grid-template-areas: |
             "hero"
-            "metrics"
+            "unclaimed"
             "ross"
             "kelly"
             "done"
 
     cards:
-      - type: custom:mushroom-template-card
+      - type: markdown
         view_layout:
           grid-area: hero
-        primary: Family Chores
-        secondary: >
-          {{ states('sensor.honey_do_grocy_chores_open') }} chores left,
-          {{ states('sensor.honey_do_grocy_unassigned_chores') }} unclaimed,
-          {{ states('sensor.honey_do_grocy_due_today') }} due today.
-        icon: mdi:home-heart
-        icon_color: brown
-        multiline_secondary: true
-        fill_container: true
+        content: |
+          # Family Chores
+          {{ now().strftime('%a, %b %d') }}  -  {{ states('sensor.honey_do_grocy_chores_open') }} open  -  {{ states('sensor.honey_do_grocy_chores_completed') }} completed today
         card_mod:
           style: |
             ha-card {
-              padding: 24px 26px;
-              border-radius: 32px;
-              background: linear-gradient(160deg, rgba(245, 235, 224, 0.94), rgba(227, 213, 202, 0.78));
-              border: 1px solid rgba(124, 108, 97, 0.10);
-              box-shadow: 0 18px 40px rgba(125, 107, 93, 0.12);
+              padding: 20px 24px;
+              border-radius: 28px;
+              background: linear-gradient(160deg, rgba(245, 239, 231, 0.96), rgba(235, 225, 214, 0.90));
+              border: 1px solid rgba(173, 147, 126, 0.10);
+              box-shadow: 0 16px 40px rgba(137, 114, 93, 0.10);
+            }
+            ha-card h1 {
+              margin: 0 0 6px;
+              font-size: 2.2rem;
+              font-weight: 700;
+              color: #5f4d40;
+            }
+            ha-card p {
+              margin: 0;
+              color: #7a6656;
+              font-size: 1rem;
             }
 
-      - type: grid
+      - type: vertical-stack
         view_layout:
-          grid-area: metrics
-        columns: 4
-        square: false
+          grid-area: unclaimed
         cards:
-          - type: custom:mushroom-template-card
-            primary: Active
-            secondary: "{{ states('sensor.honey_do_grocy_chores_open') }}"
-            icon: mdi:refresh-circle
-            icon_color: teal
-            fill_container: true
-          - type: custom:mushroom-template-card
-            primary: Completed
-            secondary: "{{ states('sensor.honey_do_grocy_chores_completed') }}"
-            icon: mdi:check-circle
-            icon_color: green
-            fill_container: true
-          - type: custom:mushroom-template-card
-            primary: Unclaimed
-            secondary: "{{ states('sensor.honey_do_grocy_unassigned_chores') }}"
-            icon: mdi:account-switch-outline
-            icon_color: blue
-            fill_container: true
-          - type: custom:mushroom-template-card
-            primary: Due Today
-            secondary: "{{ states('sensor.honey_do_grocy_due_today') }}"
-            icon: mdi:calendar-today
-            icon_color: brown
-            fill_container: true
+          - type: markdown
+            content: |
+              ## Up for Grabs
+              Unclaimed chores stay here until Ross or Kelly takes them.
+            card_mod:
+              style: |
+                ha-card {
+                  padding: 18px 20px;
+                  border-radius: 26px;
+                  background: rgba(247, 241, 232, 0.92);
+                  border: 1px solid rgba(173, 147, 126, 0.08);
+                }
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.grocy_done_walk_the_dog
+                    state: "off"
+                  - entity: input_select.grocy_claim_walk_the_dog
+                    state: Unclaimed
+                card:
+                  type: custom:mushroom-template-card
+                  entity: input_select.grocy_claim_walk_the_dog
+                  primary: Walk the Dog
+                  secondary: Tap to complete, hold to assign
+                  icon: mdi:dog-side
+                  icon_color: amber
+                  tap_action:
+                    action: call-service
+                    service: script.honey_do_grocy_complete_chore
+                    data:
+                      chore_name: Walk the Dog
+                      complete_entity: input_boolean.grocy_done_walk_the_dog
+                  hold_action:
+                    action: more-info
+                  fill_container: true
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.grocy_done_vacuum
+                    state: "off"
+                  - entity: input_select.grocy_claim_vacuum
+                    state: Unclaimed
+                card:
+                  type: custom:mushroom-template-card
+                  entity: input_select.grocy_claim_vacuum
+                  primary: Vacuum
+                  secondary: Tap to complete, hold to assign
+                  icon: mdi:vacuum
+                  icon_color: amber
+                  tap_action:
+                    action: call-service
+                    service: script.honey_do_grocy_complete_chore
+                    data:
+                      chore_name: Vacuum
+                      complete_entity: input_boolean.grocy_done_vacuum
+                  hold_action:
+                    action: more-info
+                  fill_container: true
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.grocy_done_clean_upstairs_bathroom
+                    state: "off"
+                  - entity: input_select.grocy_claim_clean_upstairs_bathroom
+                    state: Unclaimed
+                card:
+                  type: custom:mushroom-template-card
+                  entity: input_select.grocy_claim_clean_upstairs_bathroom
+                  primary: Clean Upstairs Bathroom
+                  secondary: Tap to complete, hold to assign
+                  icon: mdi:shower
+                  icon_color: amber
+                  tap_action:
+                    action: call-service
+                    service: script.honey_do_grocy_complete_chore
+                    data:
+                      chore_name: Clean Upstairs Bathroom
+                      complete_entity: input_boolean.grocy_done_clean_upstairs_bathroom
+                  hold_action:
+                    action: more-info
+                  fill_container: true
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.grocy_done_clean_living_room_bathroom
+                    state: "off"
+                  - entity: input_select.grocy_claim_clean_living_room_bathroom
+                    state: Unclaimed
+                card:
+                  type: custom:mushroom-template-card
+                  entity: input_select.grocy_claim_clean_living_room_bathroom
+                  primary: Clean Living Room Bathroom
+                  secondary: Tap to complete, hold to assign
+                  icon: mdi:spray-bottle
+                  icon_color: amber
+                  tap_action:
+                    action: call-service
+                    service: script.honey_do_grocy_complete_chore
+                    data:
+                      chore_name: Clean Living Room Bathroom
+                      complete_entity: input_boolean.grocy_done_clean_living_room_bathroom
+                  hold_action:
+                    action: more-info
+                  fill_container: true
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.grocy_done_clean_downstairs_bathroom
+                    state: "off"
+                  - entity: input_select.grocy_claim_clean_downstairs_bathroom
+                    state: Unclaimed
+                card:
+                  type: custom:mushroom-template-card
+                  entity: input_select.grocy_claim_clean_downstairs_bathroom
+                  primary: Clean Downstairs Bathroom
+                  secondary: Tap to complete, hold to assign
+                  icon: mdi:toilet
+                  icon_color: amber
+                  tap_action:
+                    action: call-service
+                    service: script.honey_do_grocy_complete_chore
+                    data:
+                      chore_name: Clean Downstairs Bathroom
+                      complete_entity: input_boolean.grocy_done_clean_downstairs_bathroom
+                  hold_action:
+                    action: more-info
+                  fill_container: true
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.grocy_done_wash_sheets
+                    state: "off"
+                  - entity: input_select.grocy_claim_wash_sheets
+                    state: Unclaimed
+                card:
+                  type: custom:mushroom-template-card
+                  entity: input_select.grocy_claim_wash_sheets
+                  primary: Wash Sheets
+                  secondary: Tap to complete, hold to assign
+                  icon: mdi:bed
+                  icon_color: amber
+                  tap_action:
+                    action: call-service
+                    service: script.honey_do_grocy_complete_chore
+                    data:
+                      chore_name: Wash Sheets
+                      complete_entity: input_boolean.grocy_done_wash_sheets
+                  hold_action:
+                    action: more-info
+                  fill_container: true
 
       - type: vertical-stack
         view_layout:
@@ -87,22 +214,27 @@ views:
           - type: markdown
             content: |
               ## Ross
-              Claim a chore, then tap its card to complete it.
+              Ross-owned chores stay in this lane.
             card_mod:
               style: |
                 ha-card {
                   padding: 18px 20px;
-                  border-radius: 28px;
-                  background: rgba(213, 189, 175, 0.86);
+                  border-radius: 26px;
+                  background: linear-gradient(180deg, rgba(240, 222, 210, 0.96), rgba(233, 214, 201, 0.90));
+                  border: 1px solid rgba(164, 133, 113, 0.08);
+                  box-shadow: 0 14px 28px rgba(146, 117, 96, 0.10);
                 }
           - type: conditional
             conditions:
               - entity: input_boolean.grocy_done_walk_the_dog
                 state: "off"
+              - entity: input_select.grocy_claim_walk_the_dog
+                state: Ross
             card:
               type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_walk_the_dog
               primary: Walk the Dog
-              secondary: "{{ states('input_select.grocy_claim_walk_the_dog') }}"
+              secondary: Hold to reassign
               icon: mdi:dog-side
               icon_color: teal
               tap_action:
@@ -111,36 +243,20 @@ views:
                 data:
                   chore_name: Walk the Dog
                   complete_entity: input_boolean.grocy_done_walk_the_dog
+              hold_action:
+                action: more-info
               fill_container: true
-              card_mod:
-                style: |
-                  ha-card {
-                    background:
-                      {% if is_state('input_select.grocy_claim_walk_the_dog', 'Ross') %}
-                        rgba(213, 189, 175, 0.96)
-                      {% elif is_state('input_select.grocy_claim_walk_the_dog', 'Kelly') %}
-                        rgba(227, 213, 202, 0.96)
-                      {% else %}
-                        rgba(245, 235, 224, 0.82)
-                      {% endif %};
-                    border-radius: 26px;
-                  }
-          - type: conditional
-            conditions:
-              - entity: input_boolean.grocy_done_walk_the_dog
-                state: "off"
-            card:
-              type: entity
-              entity: input_select.grocy_claim_walk_the_dog
-              name: Walk the Dog owner
           - type: conditional
             conditions:
               - entity: input_boolean.grocy_done_vacuum
                 state: "off"
+              - entity: input_select.grocy_claim_vacuum
+                state: Ross
             card:
               type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_vacuum
               primary: Vacuum
-              secondary: "{{ states('input_select.grocy_claim_vacuum') }}"
+              secondary: Hold to reassign
               icon: mdi:vacuum
               icon_color: teal
               tap_action:
@@ -149,36 +265,20 @@ views:
                 data:
                   chore_name: Vacuum
                   complete_entity: input_boolean.grocy_done_vacuum
+              hold_action:
+                action: more-info
               fill_container: true
-              card_mod:
-                style: |
-                  ha-card {
-                    background:
-                      {% if is_state('input_select.grocy_claim_vacuum', 'Ross') %}
-                        rgba(213, 189, 175, 0.96)
-                      {% elif is_state('input_select.grocy_claim_vacuum', 'Kelly') %}
-                        rgba(227, 213, 202, 0.96)
-                      {% else %}
-                        rgba(245, 235, 224, 0.82)
-                      {% endif %};
-                    border-radius: 26px;
-                  }
-          - type: conditional
-            conditions:
-              - entity: input_boolean.grocy_done_vacuum
-                state: "off"
-            card:
-              type: entity
-              entity: input_select.grocy_claim_vacuum
-              name: Vacuum owner
           - type: conditional
             conditions:
               - entity: input_boolean.grocy_done_clean_upstairs_bathroom
                 state: "off"
+              - entity: input_select.grocy_claim_clean_upstairs_bathroom
+                state: Ross
             card:
               type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_clean_upstairs_bathroom
               primary: Clean Upstairs Bathroom
-              secondary: "{{ states('input_select.grocy_claim_clean_upstairs_bathroom') }}"
+              secondary: Hold to reassign
               icon: mdi:shower
               icon_color: teal
               tap_action:
@@ -187,36 +287,20 @@ views:
                 data:
                   chore_name: Clean Upstairs Bathroom
                   complete_entity: input_boolean.grocy_done_clean_upstairs_bathroom
+              hold_action:
+                action: more-info
               fill_container: true
-              card_mod:
-                style: |
-                  ha-card {
-                    background:
-                      {% if is_state('input_select.grocy_claim_clean_upstairs_bathroom', 'Ross') %}
-                        rgba(213, 189, 175, 0.96)
-                      {% elif is_state('input_select.grocy_claim_clean_upstairs_bathroom', 'Kelly') %}
-                        rgba(227, 213, 202, 0.96)
-                      {% else %}
-                        rgba(245, 235, 224, 0.82)
-                      {% endif %};
-                    border-radius: 26px;
-                  }
-          - type: conditional
-            conditions:
-              - entity: input_boolean.grocy_done_clean_upstairs_bathroom
-                state: "off"
-            card:
-              type: entity
-              entity: input_select.grocy_claim_clean_upstairs_bathroom
-              name: Upstairs bathroom owner
           - type: conditional
             conditions:
               - entity: input_boolean.grocy_done_clean_living_room_bathroom
                 state: "off"
+              - entity: input_select.grocy_claim_clean_living_room_bathroom
+                state: Ross
             card:
               type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_clean_living_room_bathroom
               primary: Clean Living Room Bathroom
-              secondary: "{{ states('input_select.grocy_claim_clean_living_room_bathroom') }}"
+              secondary: Hold to reassign
               icon: mdi:spray-bottle
               icon_color: teal
               tap_action:
@@ -225,36 +309,20 @@ views:
                 data:
                   chore_name: Clean Living Room Bathroom
                   complete_entity: input_boolean.grocy_done_clean_living_room_bathroom
+              hold_action:
+                action: more-info
               fill_container: true
-              card_mod:
-                style: |
-                  ha-card {
-                    background:
-                      {% if is_state('input_select.grocy_claim_clean_living_room_bathroom', 'Ross') %}
-                        rgba(213, 189, 175, 0.96)
-                      {% elif is_state('input_select.grocy_claim_clean_living_room_bathroom', 'Kelly') %}
-                        rgba(227, 213, 202, 0.96)
-                      {% else %}
-                        rgba(245, 235, 224, 0.82)
-                      {% endif %};
-                    border-radius: 26px;
-                  }
-          - type: conditional
-            conditions:
-              - entity: input_boolean.grocy_done_clean_living_room_bathroom
-                state: "off"
-            card:
-              type: entity
-              entity: input_select.grocy_claim_clean_living_room_bathroom
-              name: Living room bathroom owner
           - type: conditional
             conditions:
               - entity: input_boolean.grocy_done_clean_downstairs_bathroom
                 state: "off"
+              - entity: input_select.grocy_claim_clean_downstairs_bathroom
+                state: Ross
             card:
               type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_clean_downstairs_bathroom
               primary: Clean Downstairs Bathroom
-              secondary: "{{ states('input_select.grocy_claim_clean_downstairs_bathroom') }}"
+              secondary: Hold to reassign
               icon: mdi:toilet
               icon_color: teal
               tap_action:
@@ -263,36 +331,20 @@ views:
                 data:
                   chore_name: Clean Downstairs Bathroom
                   complete_entity: input_boolean.grocy_done_clean_downstairs_bathroom
+              hold_action:
+                action: more-info
               fill_container: true
-              card_mod:
-                style: |
-                  ha-card {
-                    background:
-                      {% if is_state('input_select.grocy_claim_clean_downstairs_bathroom', 'Ross') %}
-                        rgba(213, 189, 175, 0.96)
-                      {% elif is_state('input_select.grocy_claim_clean_downstairs_bathroom', 'Kelly') %}
-                        rgba(227, 213, 202, 0.96)
-                      {% else %}
-                        rgba(245, 235, 224, 0.82)
-                      {% endif %};
-                    border-radius: 26px;
-                  }
-          - type: conditional
-            conditions:
-              - entity: input_boolean.grocy_done_clean_downstairs_bathroom
-                state: "off"
-            card:
-              type: entity
-              entity: input_select.grocy_claim_clean_downstairs_bathroom
-              name: Downstairs bathroom owner
           - type: conditional
             conditions:
               - entity: input_boolean.grocy_done_wash_sheets
                 state: "off"
+              - entity: input_select.grocy_claim_wash_sheets
+                state: Ross
             card:
               type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_wash_sheets
               primary: Wash Sheets
-              secondary: "{{ states('input_select.grocy_claim_wash_sheets') }}"
+              secondary: Hold to reassign
               icon: mdi:bed
               icon_color: teal
               tap_action:
@@ -301,28 +353,31 @@ views:
                 data:
                   chore_name: Wash Sheets
                   complete_entity: input_boolean.grocy_done_wash_sheets
+              hold_action:
+                action: more-info
               fill_container: true
-              card_mod:
-                style: |
-                  ha-card {
-                    background:
-                      {% if is_state('input_select.grocy_claim_wash_sheets', 'Ross') %}
-                        rgba(213, 189, 175, 0.96)
-                      {% elif is_state('input_select.grocy_claim_wash_sheets', 'Kelly') %}
-                        rgba(227, 213, 202, 0.96)
-                      {% else %}
-                        rgba(245, 235, 224, 0.82)
-                      {% endif %};
-                    border-radius: 26px;
-                  }
           - type: conditional
             conditions:
-              - entity: input_boolean.grocy_done_wash_sheets
+              - entity: input_boolean.grocy_done_fold_laundry
                 state: "off"
+              - entity: input_select.grocy_claim_fold_laundry
+                state: Ross
             card:
-              type: entity
-              entity: input_select.grocy_claim_wash_sheets
-              name: Wash sheets owner
+              type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_fold_laundry
+              primary: Fold Laundry
+              secondary: Hold to reassign
+              icon: mdi:hanger
+              icon_color: teal
+              tap_action:
+                action: call-service
+                service: script.honey_do_grocy_complete_chore
+                data:
+                  chore_name: Kelly - Fold Laundry
+                  complete_entity: input_boolean.grocy_done_fold_laundry
+              hold_action:
+                action: more-info
+              fill_container: true
 
       - type: vertical-stack
         view_layout:
@@ -331,22 +386,159 @@ views:
           - type: markdown
             content: |
               ## Kelly
-              Kelly’s lane stays visible so chores can feel profile-based like Skylight.
+              Kelly-owned chores stay in this lane.
             card_mod:
               style: |
                 ha-card {
                   padding: 18px 20px;
-                  border-radius: 28px;
-                  background: rgba(227, 213, 202, 0.86);
+                  border-radius: 26px;
+                  background: linear-gradient(180deg, rgba(236, 227, 219, 0.96), rgba(229, 219, 210, 0.90));
+                  border: 1px solid rgba(164, 133, 113, 0.08);
+                  box-shadow: 0 14px 28px rgba(146, 117, 96, 0.08);
                 }
+          - type: conditional
+            conditions:
+              - entity: input_boolean.grocy_done_walk_the_dog
+                state: "off"
+              - entity: input_select.grocy_claim_walk_the_dog
+                state: Kelly
+            card:
+              type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_walk_the_dog
+              primary: Walk the Dog
+              secondary: Hold to reassign
+              icon: mdi:dog-side
+              icon_color: brown
+              tap_action:
+                action: call-service
+                service: script.honey_do_grocy_complete_chore
+                data:
+                  chore_name: Walk the Dog
+                  complete_entity: input_boolean.grocy_done_walk_the_dog
+              hold_action:
+                action: more-info
+              fill_container: true
+          - type: conditional
+            conditions:
+              - entity: input_boolean.grocy_done_vacuum
+                state: "off"
+              - entity: input_select.grocy_claim_vacuum
+                state: Kelly
+            card:
+              type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_vacuum
+              primary: Vacuum
+              secondary: Hold to reassign
+              icon: mdi:vacuum
+              icon_color: brown
+              tap_action:
+                action: call-service
+                service: script.honey_do_grocy_complete_chore
+                data:
+                  chore_name: Vacuum
+                  complete_entity: input_boolean.grocy_done_vacuum
+              hold_action:
+                action: more-info
+              fill_container: true
+          - type: conditional
+            conditions:
+              - entity: input_boolean.grocy_done_clean_upstairs_bathroom
+                state: "off"
+              - entity: input_select.grocy_claim_clean_upstairs_bathroom
+                state: Kelly
+            card:
+              type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_clean_upstairs_bathroom
+              primary: Clean Upstairs Bathroom
+              secondary: Hold to reassign
+              icon: mdi:shower
+              icon_color: brown
+              tap_action:
+                action: call-service
+                service: script.honey_do_grocy_complete_chore
+                data:
+                  chore_name: Clean Upstairs Bathroom
+                  complete_entity: input_boolean.grocy_done_clean_upstairs_bathroom
+              hold_action:
+                action: more-info
+              fill_container: true
+          - type: conditional
+            conditions:
+              - entity: input_boolean.grocy_done_clean_living_room_bathroom
+                state: "off"
+              - entity: input_select.grocy_claim_clean_living_room_bathroom
+                state: Kelly
+            card:
+              type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_clean_living_room_bathroom
+              primary: Clean Living Room Bathroom
+              secondary: Hold to reassign
+              icon: mdi:spray-bottle
+              icon_color: brown
+              tap_action:
+                action: call-service
+                service: script.honey_do_grocy_complete_chore
+                data:
+                  chore_name: Clean Living Room Bathroom
+                  complete_entity: input_boolean.grocy_done_clean_living_room_bathroom
+              hold_action:
+                action: more-info
+              fill_container: true
+          - type: conditional
+            conditions:
+              - entity: input_boolean.grocy_done_clean_downstairs_bathroom
+                state: "off"
+              - entity: input_select.grocy_claim_clean_downstairs_bathroom
+                state: Kelly
+            card:
+              type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_clean_downstairs_bathroom
+              primary: Clean Downstairs Bathroom
+              secondary: Hold to reassign
+              icon: mdi:toilet
+              icon_color: brown
+              tap_action:
+                action: call-service
+                service: script.honey_do_grocy_complete_chore
+                data:
+                  chore_name: Clean Downstairs Bathroom
+                  complete_entity: input_boolean.grocy_done_clean_downstairs_bathroom
+              hold_action:
+                action: more-info
+              fill_container: true
+          - type: conditional
+            conditions:
+              - entity: input_boolean.grocy_done_wash_sheets
+                state: "off"
+              - entity: input_select.grocy_claim_wash_sheets
+                state: Kelly
+            card:
+              type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_wash_sheets
+              primary: Wash Sheets
+              secondary: Hold to reassign
+              icon: mdi:bed
+              icon_color: brown
+              tap_action:
+                action: call-service
+                service: script.honey_do_grocy_complete_chore
+                data:
+                  chore_name: Wash Sheets
+                  complete_entity: input_boolean.grocy_done_wash_sheets
+              hold_action:
+                action: more-info
+              fill_container: true
           - type: conditional
             conditions:
               - entity: input_boolean.grocy_done_fold_laundry
                 state: "off"
+              - entity: input_select.grocy_claim_fold_laundry
+                state: Kelly
             card:
               type: custom:mushroom-template-card
+              entity: input_select.grocy_claim_fold_laundry
               primary: Fold Laundry
-              secondary: "{{ states('input_select.grocy_claim_fold_laundry') }}"
+              secondary: Hold to reassign
               icon: mdi:hanger
               icon_color: brown
               tap_action:
@@ -355,28 +547,9 @@ views:
                 data:
                   chore_name: Kelly - Fold Laundry
                   complete_entity: input_boolean.grocy_done_fold_laundry
+              hold_action:
+                action: more-info
               fill_container: true
-              card_mod:
-                style: |
-                  ha-card {
-                    background:
-                      {% if is_state('input_select.grocy_claim_fold_laundry', 'Ross') %}
-                        rgba(213, 189, 175, 0.96)
-                      {% elif is_state('input_select.grocy_claim_fold_laundry', 'Kelly') %}
-                        rgba(227, 213, 202, 0.96)
-                      {% else %}
-                        rgba(245, 235, 224, 0.82)
-                      {% endif %};
-                    border-radius: 26px;
-                  }
-          - type: conditional
-            conditions:
-              - entity: input_boolean.grocy_done_fold_laundry
-                state: "off"
-            card:
-              type: entity
-              entity: input_select.grocy_claim_fold_laundry
-              name: Fold laundry owner
 
       - type: vertical-stack
         view_layout:
@@ -389,8 +562,8 @@ views:
               style: |
                 ha-card {
                   padding: 18px 20px;
-                  border-radius: 28px;
-                  background: rgba(245, 235, 224, 0.70);
+                  border-radius: 26px;
+                  background: rgba(245, 239, 231, 0.88);
                 }
           - type: grid
             columns: 2
@@ -417,4 +590,3 @@ views:
               - type: conditional
                 conditions: [{ entity: input_boolean.grocy_done_fold_laundry, state: "on" }]
                 card: { type: custom:mushroom-template-card, primary: Fold Laundry, secondary: Complete, icon: mdi:check-circle, icon_color: green, fill_container: true }
-
