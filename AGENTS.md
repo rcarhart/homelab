@@ -8,7 +8,7 @@ Agents editing this repo should follow these rules.
 
 # Infrastructure Layout
 homelab/
-├─ apps/
+├─ app/
 │ ├─ mealie/
 │ ├─ immich/
 │ ├─ paperless/
@@ -29,7 +29,7 @@ homelab/
 
 Rules:
 
-- application stacks go under **apps**
+- application stacks go under **app**
 - infrastructure services go under **infrastructure**
 - Home Assistant configs live in **home-assistant**
 - documentation lives in **docs**
@@ -40,7 +40,7 @@ Rules:
 
 Each service should have its own folder and compose file.
 
-Example:apps/mealie/docker-compose.yml
+Example:app/mealie/docker-compose.yml
 
 
 Do not combine unrelated services in the same compose stack.
