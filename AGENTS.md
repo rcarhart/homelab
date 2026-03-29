@@ -60,9 +60,19 @@ Example: recipes.rosscarhart.com -> mealie
 
 # Home Assistant
 
-Home Assistant runs in its **own VM**, not inside Docker.
+Home Assistant runs in its **own HA OS VM**, not inside Docker.
 
-Configuration files live under:
+The live production configuration is available over Samba at:
+
+`\\192.168.86.21\config`
+
+Repository rules:
+
+- `home-assistant/` contains **managed config artifacts only**, not a full dump of runtime-generated Home Assistant files
+- keep source-controlled items such as `configuration.yaml`, dashboards, packages, themes, blueprints, selected `custom_components`, and intentional `www` assets under `home-assistant/`
+- do not treat `.storage`, logs, databases, backups, caches, downloaded dependencies, or `secrets.yaml` as source-controlled config
+- `home-assistant-legacy/` refers to the directory on the actual server from the old installation path and is **not live**
+- agents may read production config from the Samba share for reference, but should only write to repo dev/staged files unless the user explicitly approves writing to production config
 
 
 ---

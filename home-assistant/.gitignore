@@ -1,0 +1,42 @@
+# Secrets and environment-specific overrides
+secrets.yaml
+*.local.yaml
+
+# Home Assistant runtime state and registries
+.storage/
+.cloud/
+.cache/
+.HA_VERSION
+.ha_version
+.ha_run.lock
+
+# Logs and diagnostics
+home-assistant.log
+home-assistant.log.*
+*.log
+*.err
+*.out
+
+# Databases, recorder data, and backups
+home-assistant_v2.db
+home-assistant_v2.db-*
+*.db
+*.db-*
+backups/
+backup.txt
+*.tar
+*.tar.gz
+
+# Python dependencies and caches
+deps/
+__pycache__/
+*.py[cod]
+
+# Transient media and downloaded frontend assets
+tts/
+tmp/
+www/community/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
