@@ -1,0 +1,195 @@
+{
+  "summary": {
+    "projectsInFlight": 9,
+    "pendingApproval": 4,
+    "agentsOnline": 6,
+    "urgentBlockers": 2
+  },
+  "projects": {
+    "backlog": [
+      {
+        "title": "Home Assistant VM Access",
+        "description": "Establish reliable access to the Home Assistant OS virtual machine so live dashboard implementation can begin.",
+        "tags": [
+          {"label": "Infrastructure", "tone": "blue"},
+          {"label": "Blocked", "tone": "yellow"}
+        ],
+        "owner": "Ross + Planner",
+        "priority": "High"
+      },
+      {
+        "title": "Lead Pipeline Backend",
+        "description": "Add real submission capture, storage, and routing for PittsburghDivorce attorney leads.",
+        "tags": [
+          {"label": "Revenue", "tone": "green"},
+          {"label": "Backend", "tone": "default"}
+        ],
+        "owner": "Software Engineer",
+        "priority": "Medium"
+      }
+    ],
+    "inProgress": [
+      {
+        "title": "Mealie Shared Collections",
+        "description": "Canonical recipe sharing, scoped comments, and demo flow are being built out.",
+        "tags": [
+          {"label": "Product", "tone": "purple"},
+          {"label": "Backend", "tone": "blue"}
+        ],
+        "owner": "Software Engineer",
+        "priority": "High"
+      },
+      {
+        "title": "Mission Control UI",
+        "description": "Turning the static concept into a real dashboard with data-driven panels and a cron calendar.",
+        "tags": [
+          {"label": "Ops UI", "tone": "blue"},
+          {"label": "Live Data", "tone": "green"}
+        ],
+        "owner": "Planner + UI",
+        "priority": "High"
+      },
+      {
+        "title": "PittsburghDivorce Site",
+        "description": "Front-end concept is live; next work is capture, routing, and qualification logic.",
+        "tags": [
+          {"label": "Lead Gen", "tone": "green"},
+          {"label": "Needs Backend", "tone": "yellow"}
+        ],
+        "owner": "Software Engineer",
+        "priority": "Medium"
+      }
+    ],
+    "waitingApproval": [
+      {
+        "title": "Kitchen Dashboard Buildout",
+        "description": "Hero Meal First design is approved visually. Waiting on HA VM access before implementing live.",
+        "tags": [
+          {"label": "Approved Design", "tone": "green"},
+          {"label": "Waiting on Access", "tone": "yellow"}
+        ],
+        "owner": "UI Worker",
+        "priority": "High"
+      },
+      {
+        "title": "Mealie Demo Direction",
+        "description": "Need approval on what counts as the first public/demo-ready milestone for the Mealie fork.",
+        "tags": [
+          {"label": "Product Review", "tone": "purple"},
+          {"label": "Approval Needed", "tone": "red"}
+        ],
+        "owner": "Planner",
+        "priority": "High"
+      }
+    ],
+    "done": [
+      {
+        "title": "Kitchen Dashboard Demo",
+        "description": "Hero Meal First concept refined and approved through the live preview container.",
+        "tags": [
+          {"label": "Approved", "tone": "green"},
+          {"label": "UI", "tone": "blue"}
+        ],
+        "owner": "UI Worker",
+        "priority": "Done"
+      },
+      {
+        "title": "Worker System Plan",
+        "description": "Planner, researcher, UI, engineer, backup, and security worker roles defined and scaffolded.",
+        "tags": [
+          {"label": "Complete", "tone": "green"},
+          {"label": "Architecture", "tone": "default"}
+        ],
+        "owner": "Planner",
+        "priority": "Done"
+      }
+    ]
+  },
+  "approvals": [
+    {
+      "title": "Home Assistant VM access path",
+      "description": "Needed before moving the approved kitchen dashboard into the live Home Assistant OS instance."
+    },
+    {
+      "title": "Mealie implementation slice",
+      "description": "Permission hardening, copy-to-household flow, and demo checkpoint scope."
+    },
+    {
+      "title": "PittsburghDivorce backend scope",
+      "description": "Decide whether to route leads to email, CRM, sheet, or a custom admin queue first."
+    },
+    {
+      "title": "Mission Control data source plan",
+      "description": "Choose whether this should be manually managed JSON first or connected to a real store right away."
+    }
+  ],
+  "agents": [
+    {
+      "name": "Planner / Supervisor",
+      "status": "Active",
+      "tone": "blue",
+      "detail": "Coordinating Mealie, Mission Control, UI, and lead-gen work.",
+      "pulse": 84
+    },
+    {
+      "name": "UI / Frontend",
+      "status": "Healthy",
+      "tone": "green",
+      "detail": "Kitchen dashboard direction approved and ready for implementation planning.",
+      "pulse": 72
+    },
+    {
+      "name": "Software Engineer",
+      "status": "Busy",
+      "tone": "yellow",
+      "detail": "Building demos, scaffolding Mealie, and preparing deeper implementation work.",
+      "pulse": 68
+    },
+    {
+      "name": "Researcher",
+      "status": "Idle-ready",
+      "tone": "green",
+      "detail": "Available for legal intake research, product comparisons, or implementation references.",
+      "pulse": 51
+    },
+    {
+      "name": "Backup Auditor",
+      "status": "Not scheduled",
+      "tone": "red",
+      "detail": "Restore drills and backup monitoring have not been automated yet.",
+      "pulse": 28
+    },
+    {
+      "name": "Security / Repo Auditor",
+      "status": "Partial",
+      "tone": "yellow",
+      "detail": "Conceptually defined, but not yet fully wired into enforcement or automation.",
+      "pulse": 43
+    }
+  ],
+  "heartbeats": [
+    {
+      "title": "Kitchen Dashboard",
+      "description": "Approved visually. Next step is live Home Assistant implementation once access is available."
+    },
+    {
+      "title": "Mealie Shared Collections",
+      "description": "Scaffolding exists. Needs a stronger demo cut and more permission hardening."
+    },
+    {
+      "title": "PittsburghDivorce",
+      "description": "Front-end is live as a concept. Lead capture backend still needs to be built."
+    }
+  ],
+  "cronJobs": [
+    {
+      "name": "archive-cleanup:home-assistant-legacy-delete",
+      "kind": "one-time",
+      "nextRun": "2026-04-12T17:37:00.000Z",
+      "displayDate": "Sun Apr 12, 2026",
+      "displayTime": "17:37 UTC",
+      "status": "scheduled",
+      "description": "Two-week reminder to delete the archived Home Assistant legacy folder if it is no longer needed."
+    }
+  ]
+}
