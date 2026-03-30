@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kitchen Dashboard Demo</title>
+  <style>
+    :root {
+      --bg: #EDEDE9;
+      --panel: #F5EBE0;
+      --panel-2: #E3D5CA;
+      --panel-3: #D6CCC2;
+      --accent: #D5BDAF;
+      --text: #4e463f;
+      --muted: #7b7169;
+      --border: rgba(116, 100, 86, 0.12);
+      --shadow: 0 10px 30px rgba(124, 106, 92, 0.08);
+      --radius-xl: 26px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #f4f2ee 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+    .shell {
+      max-width: 1520px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .title h1 { margin: 0; font-size: 30px; }
+    .title p { margin: 4px 0 0; color: var(--muted); }
+    .nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .nav button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      background: var(--panel);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .nav button.active {
+      background: var(--panel-3);
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+    .grid-hero {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+    }
+    .grid-balanced {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 16px;
+    }
+    .grid-sidebar {
+      display: grid;
+      grid-template-columns: 0.8fr 1.6fr 0.9fr;
+      gap: 16px;
+    }
+    .stack { display: grid; gap: 16px; }
+    .card {
+      background: rgba(245, 235, 224, 0.82);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      backdrop-filter: blur(4px);
+    }
+    .card.secondary { background: rgba(227, 213, 202, 0.75); }
+    .card.tertiary { background: rgba(214, 204, 194, 0.72); }
+    .section-label {
+      font-size: 12px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 18px;
+      min-height: 360px;
+    }
+    .hero-image {
+      border-radius: 22px;
+      min-height: 320px;
+      background:
+        linear-gradient(180deg, rgba(68,51,38,0.05), rgba(68,51,38,0.22)),
+        url('https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=80') center/cover;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
+    }
+    .meal-title {
+      font-size: 34px;
+      line-height: 1.05;
+      margin: 0 0 10px;
+    }
+    .meta, .muted { color: var(--muted); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 18px; }
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.45);
+      border: 1px solid rgba(124,106,92,0.10);
+      font-size: 13px;
+      color: var(--text);
+    }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      background: var(--accent);
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn.secondary {
+      background: rgba(255,255,255,0.45);
+      border: 1px solid var(--border);
+    }
+    .music {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+    .album {
+      width: 80px; height: 80px; border-radius: 18px;
+      background: linear-gradient(135deg, var(--panel-3), var(--accent));
+      display: grid; place-items: center; font-size: 28px;
+    }
+    .music-controls {
+      display: flex; gap: 10px; margin-top: 12px;
+    }
+    .icon-btn {
+      width: 38px; height: 38px; border-radius: 12px; border: 0; cursor: pointer;
+      background: rgba(255,255,255,0.52);
+    }
+    .list { display: grid; gap: 10px; }
+    .item {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 10px 12px; border-radius: 14px;
+      background: rgba(255,255,255,0.42);
+    }
+    .checkbox {
+      width: 18px; height: 18px; border-radius: 6px; border: 2px solid var(--accent);
+      display: inline-block; margin-right: 10px;
+      vertical-align: middle;
+    }
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .day {
+      background: rgba(255,255,255,0.4);
+      border-radius: 18px;
+      padding: 12px;
+      min-height: 116px;
+      border: 1px solid rgba(124,106,92,0.08);
+    }
+    .day.today { background: rgba(214, 204, 194, 0.78); }
+    .day strong { display: block; margin-bottom: 8px; }
+    .meal-rail { display: grid; gap: 10px; }
+    .meal-rail .rail-item {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.42);
+    }
+    .meal-rail .rail-item.today { background: rgba(214, 204, 194, 0.78); }
+    .cook-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(66, 54, 45, 0.36);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 20;
+    }
+    .cook-overlay.open { display: flex; }
+    .cook-panel {
+      width: min(1320px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      background: var(--bg);
+      border-radius: 28px;
+      padding: 22px;
+      box-shadow: 0 30px 60px rgba(52, 42, 35, 0.20);
+      border: 1px solid rgba(124,106,92,0.12);
+    }
+    .cook-header {
+      display: flex; justify-content: space-between; align-items: start; gap: 16px; margin-bottom: 16px;
+    }
+    .cook-grid {
+      display: grid; grid-template-columns: 0.9fr 1.4fr; gap: 16px;
+    }
+    .steps { display: grid; gap: 12px; }
+    .step {
+      background: rgba(255,255,255,0.45);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .sticky-actions {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px;
+      position: sticky; bottom: 0; background: linear-gradient(180deg, rgba(237,237,233,0), rgba(237,237,233,.95) 40%);
+      padding-top: 14px;
+    }
+    @media (max-width: 1100px) {
+      .grid-hero, .grid-balanced, .grid-sidebar, .cook-grid, .hero { grid-template-columns: 1fr; }
+      .week-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="title">
+        <h1>Kitchen Dashboard Demo</h1>
+        <p>Three Skylight-inspired Home Assistant dashboard mockups for review</p>
+      </div>
+      <div class="nav">
+        <button class="active" data-target="hero">Option 1 • Hero Meal First</button>
+        <button data-target="balanced">Option 2 • Balanced Grid</button>
+        <button data-target="sidebar">Option 3 • Cookbook Sidebar</button>
+      </div>
+    </div>
+
+    <section id="hero" class="page active">
+      <div class="grid-hero">
+        <div class="card">
+          <div class="section-label">Tonight's Dinner</div>
+          <div class="hero">
+            <div class="hero-image"></div>
+            <div>
+              <h2 class="meal-title">Creamy Tuscan Chicken Pasta</h2>
+              <div class="meta">Prep 15m • Cook 25m • Serves 4</div>
+              <div class="chips">
+                <span class="chip">Mealie</span>
+                <span class="chip">Family Favorite</span>
+                <span class="chip">Weeknight</span>
+              </div>
+              <p class="muted">Tonight’s featured meal with recipe image, quick actions, and an immersive Cook Mode for ingredients and directions.</p>
+              <div class="actions">
+                <button class="btn cook-open">Cook Mode</button>
+                <button class="btn secondary">Open Recipe</button>
+                <button class="btn secondary">Add Missing</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card secondary">
+            <div class="section-label">Now Playing</div>
+            <div class="music">
+              <div class="album">♫</div>
+              <div>
+                <strong>Golden Hour</strong><br />
+                <span class="muted">Kacey Musgraves • Kitchen Speaker</span>
+                <div class="music-controls">
+                  <button class="icon-btn">⏮</button>
+                  <button class="icon-btn">⏯</button>
+                  <button class="icon-btn">⏭</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card tertiary">
+            <div class="section-label">Shopping List</div>
+            <div class="list">
+              <div class="item"><span><span class="checkbox"></span>Fresh basil</span><span>Produce</span></div>
+              <div class="item"><span><span class="checkbox"></span>Heavy cream</span><span>Dairy</span></div>
+              <div class="item"><span><span class="checkbox"></span>Parmesan</span><span>Dairy</span></div>
+              <div class="item"><span><span class="checkbox"></span>Chicken breast</span><span>Meat</span></div>
+              <div class="item"><span><span class="checkbox"></span>Pasta</span><span>Pantry</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="section-label">Weekly Meal Plan</div>
+        <div class="week-grid">
+          <div class="day"><strong>Mon</strong><div>Turkey Tacos</div><small class="muted">Done</small></div>
+          <div class="day today"><strong>Tue</strong><div>Creamy Tuscan Chicken Pasta</div><small class="muted">Tonight</small></div>
+          <div class="day"><strong>Wed</strong><div>Tomato Soup + Grilled Cheese</div></div>
+          <div class="day"><strong>Thu</strong><div>Beef Stir Fry</div></div>
+          <div class="day"><strong>Fri</strong><div>Homemade Pizza</div></div>
+          <div class="day"><strong>Sat</strong><div>Leftovers</div></div>
+          <div class="day"><strong>Sun</strong><div>Roast Chicken</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="balanced" class="page">
+      <div class="grid-balanced">
+        <div class="stack">
+          <div class="card">
+            <div class="section-label">Tonight's Dinner</div>
+            <div class="hero" style="min-height:auto;">
+              <div class="hero-image" style="min-height:240px;"></div>
+              <div>
+                <h2 class="meal-title" style="font-size:30px;">Creamy Tuscan Chicken Pasta</h2>
+                <div class="meta">Skylight-style meal card with compact controls and familiar structure</div>
+                <div class="actions">
+                  <button class="btn cook-open">Cook Mode</button>
+                  <button class="btn secondary">View Recipe</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card secondary">
+            <div class="section-label">Weekly Meal Plan</div>
+            <div class="week-grid">
+              <div class="day"><strong>Mon</strong><div>Turkey Tacos</div></div>
+              <div class="day today"><strong>Tue</strong><div>Tuscan Pasta</div></div>
+              <div class="day"><strong>Wed</strong><div>Soup</div></div>
+              <div class="day"><strong>Thu</strong><div>Stir Fry</div></div>
+              <div class="day"><strong>Fri</strong><div>Pizza</div></div>
+              <div class="day"><strong>Sat</strong><div>Leftovers</div></div>
+              <div class="day"><strong>Sun</strong><div>Roast Chicken</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card tertiary">
+            <div class="section-label">Now Playing</div>
+            <div class="music">
+              <div class="album">♫</div>
+              <div>
+                <strong>Golden Hour</strong><br />
+                <span class="muted">Kitchen Speaker</span>
+                <div class="music-controls">
+                  <button class="icon-btn">⏮</button>
+                  <button class="icon-btn">⏯</button>
+                  <button class="icon-btn">⏭</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-label">Shopping List</div>
+            <div class="list">
+              <div class="item"><span><span class="checkbox"></span>Fresh basil</span><span>1</span></div>
+              <div class="item"><span><span class="checkbox"></span>Chicken breast</span><span>2 lb</span></div>
+              <div class="item"><span><span class="checkbox"></span>Pasta</span><span>1 box</span></div>
+              <div class="item"><span><span class="checkbox"></span>Parmesan</span><span>8 oz</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sidebar" class="page">
+      <div class="grid-sidebar">
+        <div class="card secondary">
+          <div class="section-label">Week Plan</div>
+          <div class="meal-rail">
+            <div class="rail-item">Mon • Turkey Tacos</div>
+            <div class="rail-item today">Tue • Creamy Tuscan Chicken Pasta</div>
+            <div class="rail-item">Wed • Tomato Soup</div>
+            <div class="rail-item">Thu • Beef Stir Fry</div>
+            <div class="rail-item">Fri • Homemade Pizza</div>
+            <div class="rail-item">Sat • Leftovers</div>
+            <div class="rail-item">Sun • Roast Chicken</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-label">Tonight's Dinner</div>
+          <div class="hero">
+            <div class="hero-image"></div>
+            <div>
+              <h2 class="meal-title">Creamy Tuscan Chicken Pasta</h2>
+              <div class="meta">Premium cookbook-style center stage layout</div>
+              <div class="chips">
+                <span class="chip">Mealie</span>
+                <span class="chip">Tonight</span>
+              </div>
+              <div class="actions">
+                <button class="btn cook-open">Cook Mode</button>
+                <button class="btn secondary">Recipe</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card tertiary">
+            <div class="section-label">Now Playing</div>
+            <div class="music">
+              <div class="album">♫</div>
+              <div>
+                <strong>Golden Hour</strong><br />
+                <span class="muted">Kitchen Speaker</span>
+              </div>
+            </div>
+          </div>
+          <div class="card secondary">
+            <div class="section-label">Shopping List</div>
+            <div class="list">
+              <div class="item"><span><span class="checkbox"></span>Fresh basil</span></div>
+              <div class="item"><span><span class="checkbox"></span>Heavy cream</span></div>
+              <div class="item"><span><span class="checkbox"></span>Parmesan</span></div>
+              <div class="item"><span><span class="checkbox"></span>Pasta</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="cook-overlay" id="cookOverlay">
+    <div class="cook-panel">
+      <div class="cook-header">
+        <div>
+          <div class="section-label">Cook Mode</div>
+          <h2 style="margin:0; font-size:32px;">Creamy Tuscan Chicken Pasta</h2>
+          <p class="muted" style="margin:8px 0 0;">Ingredients on the left, directions on the right, optimized for kitchen readability.</p>
+        </div>
+        <button class="btn secondary" id="closeCook">Close</button>
+      </div>
+      <div class="cook-grid">
+        <div class="card secondary">
+          <div class="section-label">Ingredients</div>
+          <div class="list">
+            <div class="item"><span><span class="checkbox"></span>2 chicken breasts</span></div>
+            <div class="item"><span><span class="checkbox"></span>12 oz pasta</span></div>
+            <div class="item"><span><span class="checkbox"></span>1 cup heavy cream</span></div>
+            <div class="item"><span><span class="checkbox"></span>3 cloves garlic</span></div>
+            <div class="item"><span><span class="checkbox"></span>1/2 cup parmesan</span></div>
+            <div class="item"><span><span class="checkbox"></span>Fresh basil</span></div>
+            <div class="item"><span><span class="checkbox"></span>Sun-dried tomatoes</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-label">Directions</div>
+          <div class="steps">
+            <div class="step"><strong>1.</strong> Boil pasta in salted water until al dente, then reserve a little pasta water.</div>
+            <div class="step"><strong>2.</strong> Season chicken, sear until golden, then rest and slice.</div>
+            <div class="step"><strong>3.</strong> Sauté garlic and sun-dried tomatoes, then stir in cream and parmesan.</div>
+            <div class="step"><strong>4.</strong> Add pasta and chicken back in, loosen with pasta water if needed.</div>
+            <div class="step"><strong>5.</strong> Finish with basil, plate, and serve.</div>
+          </div>
+          <div class="sticky-actions">
+            <button class="btn">Next Step</button>
+            <button class="btn secondary">Start 10m Timer</button>
+            <button class="btn secondary">Keep Screen Awake</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const buttons = document.querySelectorAll('.nav button');
+    const pages = document.querySelectorAll('.page');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        pages.forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.target).classList.add('active');
+      });
+    });
+    const overlay = document.getElementById('cookOverlay');
+    document.querySelectorAll('.cook-open').forEach(btn => btn.addEventListener('click', () => overlay.classList.add('open')));
+    document.getElementById('closeCook').addEventListener('click', () => overlay.classList.remove('open'));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+  </script>
+</body>
+</html>

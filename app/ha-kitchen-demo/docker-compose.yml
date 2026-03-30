@@ -1,0 +1,7 @@
+services:
+  ha-kitchen-demo:
+    build: .
+    container_name: ha-kitchen-demo
+    ports:
+      - "8099:80"
+    restart: unless-stopped
