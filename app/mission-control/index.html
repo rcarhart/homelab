@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mission Control | Project & Agent Overview</title>
+  <style>
+    :root {
+      --bg: #0f1318;
+      --panel: #171d24;
+      --panel-2: #1e2630;
+      --panel-3: #273140;
+      --line: rgba(255,255,255,0.08);
+      --text: #eef3f8;
+      --muted: #9fb0c1;
+      --blue: #58a6ff;
+      --cyan: #4fd1c5;
+      --green: #34d399;
+      --yellow: #fbbf24;
+      --orange: #fb923c;
+      --red: #f87171;
+      --purple: #a78bfa;
+      --shadow: 0 22px 48px rgba(0,0,0,0.32);
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(88,166,255,0.10), transparent 18%),
+        radial-gradient(circle at top right, rgba(79,209,197,0.08), transparent 20%),
+        linear-gradient(180deg, #0c1014 0%, var(--bg) 100%);
+    }
+    .shell {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .title h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 54px);
+      letter-spacing: -0.04em;
+    }
+    .title p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+      max-width: 760px;
+      line-height: 1.6;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .chip, .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 11px 15px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .chip {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+    .btn {
+      border: 0;
+      background: var(--blue);
+      color: #07111f;
+      cursor: pointer;
+    }
+    .overview {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .panel {
+      background: linear-gradient(180deg, rgba(30,38,48,0.96), rgba(23,29,36,0.95));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .metric .eyebrow {
+      color: var(--muted);
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: .14em;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .metric .value {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+    .metric .sub {
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 18px;
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.03em;
+    }
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .column {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 22px;
+      padding: 14px;
+      min-height: 620px;
+    }
+    .column .col-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .col-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    .count {
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(39,49,64,0.95), rgba(25,31,40,0.96));
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.18);
+    }
+    .project-title {
+      margin: 0 0 6px;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+    .project-desc {
+      color: var(--muted);
+      margin: 0 0 12px;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .tag {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+    }
+    .tag.blue { background: rgba(88,166,255,0.16); color: #a8d0ff; }
+    .tag.green { background: rgba(52,211,153,0.16); color: #8df0c4; }
+    .tag.yellow { background: rgba(251,191,36,0.16); color: #ffd978; }
+    .tag.purple { background: rgba(167,139,250,0.16); color: #d1c0ff; }
+    .tag.red { background: rgba(248,113,113,0.16); color: #ffc1c1; }
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    .sidebar {
+      display: grid;
+      gap: 18px;
+    }
+    .approval-list, .agent-list, .heartbeat-list { display: grid; gap: 12px; }
+    .approval-item, .agent-item, .heartbeat-item {
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.04);
+      padding: 14px;
+    }
+    .approval-item strong, .agent-item strong, .heartbeat-item strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .agent-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    .dot-green { background: var(--green); }
+    .dot-yellow { background: var(--yellow); }
+    .dot-blue { background: var(--blue); }
+    .dot-red { background: var(--red); }
+    .pulse {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .pulse > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cyan), var(--blue));
+    }
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    @media (max-width: 1350px) {
+      .overview, .main-grid { grid-template-columns: 1fr; }
+      .kanban { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 820px) {
+      .kanban { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="title">
+        <h1>Mission Control</h1>
+        <p>A central operations view for projects, approvals, and agent heartbeat. Designed to give you a clear picture of what’s in flight, what’s blocked, and what needs your attention.</p>
+      </div>
+      <div class="actions">
+        <span class="chip">Live board concept</span>
+        <span class="chip">Kanban + approvals + heartbeat</span>
+        <button class="btn">Create New Project</button>
+      </div>
+    </div>
+
+    <div class="overview">
+      <div class="panel metric">
+        <div class="eyebrow">Projects in flight</div>
+        <div class="value">9</div>
+        <div class="sub">Across software, dashboard design, audits, and infrastructure work.</div>
+      </div>
+      <div class="panel metric">
+        <div class="eyebrow">Pending approval</div>
+        <div class="value">4</div>
+        <div class="sub">Items currently waiting on Ross before work can continue.</div>
+      </div>
+      <div class="panel metric">
+        <div class="eyebrow">Agents online</div>
+        <div class="value">6</div>
+        <div class="sub">Planner, UI, engineer, backup, security, and researcher workers.</div>
+      </div>
+      <div class="panel metric">
+        <div class="eyebrow">Urgent blockers</div>
+        <div class="value">2</div>
+        <div class="sub">Access and approval dependencies currently slowing execution.</div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <div class="panel">
+        <div class="section-head">
+          <h2>Project Board</h2>
+          <span class="chip">Kanban status overview</span>
+        </div>
+        <div class="kanban">
+          <div class="column">
+            <div class="col-head">
+              <div class="col-title">Backlog</div>
+              <div class="count">2</div>
+            </div>
+            <div class="card">
+              <h3 class="project-title">Home Assistant VM Access</h3>
+              <p class="project-desc">Establish reliable access path to the Home Assistant OS virtual machine so live dashboard work can begin.</p>
+              <div class="tags">
+                <span class="tag blue">Infrastructure</span>
+                <span class="tag yellow">Blocked</span>
+              </div>
+              <div class="meta-row"><span>Owner: Ross + Planner</span><span>Priority: High</span></div>
+            </div>
+            <div class="card">
+              <h3 class="project-title">Lead Pipeline Backend</h3>
+              <p class="project-desc">Add real submission storage, routing, and qualification flow for PittsburghDivorce leads.</p>
+              <div class="tags">
+                <span class="tag green">Revenue</span>
+                <span class="tag">Backend</span>
+              </div>
+              <div class="meta-row"><span>Owner: Software Engineer</span><span>Priority: Medium</span></div>
+            </div>
+          </div>
+
+          <div class="column">
+            <div class="col-head">
+              <div class="col-title">In Progress</div>
+              <div class="count">3</div>
+            </div>
+            <div class="card">
+              <h3 class="project-title">Mealie Shared Collections</h3>
+              <p class="project-desc">Canonical recipe sharing, scoped comments, copy-to-household flow, and migration scaffolding are underway.</p>
+              <div class="tags">
+                <span class="tag purple">Product</span>
+                <span class="tag blue">Backend</span>
+              </div>
+              <div class="meta-row"><span>Status: demo checkpoint building</span><span>Priority: High</span></div>
+            </div>
+            <div class="card">
+              <h3 class="project-title">Mission Control UI</h3>
+              <p class="project-desc">Designing a board to visualize projects, agent heartbeat, pending approvals, and operations status.</p>
+              <div class="tags">
+                <span class="tag blue">Ops UI</span>
+                <span class="tag">Frontend</span>
+              </div>
+              <div class="meta-row"><span>Status: first review build</span><span>Priority: High</span></div>
+            </div>
+            <div class="card">
+              <h3 class="project-title">PittsburghDivorce Site</h3>
+              <p class="project-desc">Professional lead-gen front end is live as a concept; backend capture and qualification remain to be built.</p>
+              <div class="tags">
+                <span class="tag green">Lead Gen</span>
+                <span class="tag yellow">Needs backend</span>
+              </div>
+              <div class="meta-row"><span>Owner: Software Engineer</span><span>Priority: Medium</span></div>
+            </div>
+          </div>
+
+          <div class="column">
+            <div class="col-head">
+              <div class="col-title">Waiting on Approval</div>
+              <div class="count">2</div>
+            </div>
+            <div class="card">
+              <h3 class="project-title">Kitchen Dashboard Buildout</h3>
+              <p class="project-desc">Hero Meal First design is approved visually. Waiting to start live Home Assistant implementation after VM access is ready.</p>
+              <div class="tags">
+                <span class="tag green">Approved Design</span>
+                <span class="tag yellow">Waiting on access</span>
+              </div>
+              <div class="meta-row"><span>Needs: HA VM access</span><span>Priority: High</span></div>
+            </div>
+            <div class="card">
+              <h3 class="project-title">Mealie Demo Cut</h3>
+              <p class="project-desc">Need a clean demo checkpoint decision before moving into deeper implementation and permission hardening.</p>
+              <div class="tags">
+                <span class="tag purple">Product Review</span>
+                <span class="tag red">Approval needed</span>
+              </div>
+              <div class="meta-row"><span>Needs: Ross review</span><span>Priority: High</span></div>
+            </div>
+          </div>
+
+          <div class="column">
+            <div class="col-head">
+              <div class="col-title">Done / Demo Ready</div>
+              <div class="count">2</div>
+            </div>
+            <div class="card">
+              <h3 class="project-title">Kitchen Dashboard Demo</h3>
+              <p class="project-desc">Hero Meal First concept refined and approved through the live preview container.</p>
+              <div class="tags">
+                <span class="tag green">Approved</span>
+                <span class="tag blue">UI</span>
+              </div>
+              <div class="meta-row"><span>Status: Approved</span><span>Link: Preview live</span></div>
+            </div>
+            <div class="card">
+              <h3 class="project-title">Worker System Plan</h3>
+              <p class="project-desc">Planner, researcher, UI, engineering, backup, and security workers defined and scaffolded.</p>
+              <div class="tags">
+                <span class="tag green">Complete</span>
+                <span class="tag">Architecture</span>
+              </div>
+              <div class="meta-row"><span>Status: Established</span><span>Priority: Complete</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar">
+        <div class="panel">
+          <div class="section-head">
+            <h2>Pending Approval</h2>
+            <span class="chip">Ross action queue</span>
+          </div>
+          <div class="approval-list">
+            <div class="approval-item">
+              <strong>Home Assistant VM access path</strong>
+              <div class="small">Needed before moving the approved kitchen dashboard into the live HA OS instance.</div>
+            </div>
+            <div class="approval-item">
+              <strong>Mealie next implementation slice</strong>
+              <div class="small">Permission hardening, copy-to-household flow, and demo checkpoint direction.</div>
+            </div>
+            <div class="approval-item">
+              <strong>PittsburghDivorce backend scope</strong>
+              <div class="small">Decide whether leads go to email, sheet, CRM, or a custom admin queue first.</div>
+            </div>
+            <div class="approval-item">
+              <strong>Mission Control next phase</strong>
+              <div class="small">Choose whether to make this a static board first or wire it to live project/agent data.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <h2>Agent Heartbeat</h2>
+            <span class="chip">Future multi-agent ops</span>
+          </div>
+          <div class="agent-list">
+            <div class="agent-item">
+              <div class="agent-top"><strong><span class="status-dot dot-blue"></span>Planner / Supervisor</strong><span class="small">Active</span></div>
+              <div class="small">Coordinating Mealie, UI, lead-gen, and Mission Control work.</div>
+              <div class="pulse"><span style="width:84%"></span></div>
+            </div>
+            <div class="agent-item">
+              <div class="agent-top"><strong><span class="status-dot dot-green"></span>UI / Frontend</strong><span class="small">Healthy</span></div>
+              <div class="small">Kitchen dashboard approved. Ready for live HA implementation once access exists.</div>
+              <div class="pulse"><span style="width:72%"></span></div>
+            </div>
+            <div class="agent-item">
+              <div class="agent-top"><strong><span class="status-dot dot-yellow"></span>Software Engineer</strong><span class="small">Busy</span></div>
+              <div class="small">Building Mealie scaffolding and demo environments; waiting on product checkpoint decisions.</div>
+              <div class="pulse"><span style="width:68%"></span></div>
+            </div>
+            <div class="agent-item">
+              <div class="agent-top"><strong><span class="status-dot dot-green"></span>Researcher</strong><span class="small">Idle-ready</span></div>
+              <div class="small">Available for legal intake patterns, HA card comparisons, or product research.</div>
+              <div class="pulse"><span style="width:51%"></span></div>
+            </div>
+            <div class="agent-item">
+              <div class="agent-top"><strong><span class="status-dot dot-red"></span>Backup Auditor</strong><span class="small">Not scheduled</span></div>
+              <div class="small">Restore drill cadence and backup monitoring logic still need to be wired.</div>
+              <div class="pulse"><span style="width:28%"></span></div>
+            </div>
+            <div class="agent-item">
+              <div class="agent-top"><strong><span class="status-dot dot-yellow"></span>Security / Repo Auditor</strong><span class="small">Partial</span></div>
+              <div class="small">Repo reviews exist conceptually, but automated checks and approval gates are not yet live.</div>
+              <div class="pulse"><span style="width:43%"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <h2>Recent Heartbeats</h2>
+            <span class="chip">Activity snapshot</span>
+          </div>
+          <div class="heartbeat-list">
+            <div class="heartbeat-item">
+              <strong>Kitchen Dashboard</strong>
+              <div class="small">Design approved. Transitioning from visual demo into implementation planning.</div>
+            </div>
+            <div class="heartbeat-item">
+              <strong>Mealie Shared Collections</strong>
+              <div class="small">Schema + route scaffolding in place. Needs a demo-ready product cut and permission hardening.</div>
+            </div>
+            <div class="heartbeat-item">
+              <strong>PittsburghDivorce</strong>
+              <div class="small">Front-end concept deployed. Backend lead capture not yet implemented.</div>
+            </div>
+          </div>
+          <div class="footer-note">Mission Control is designed to become the single place to answer: what is active, what is blocked, what needs approval, and which agents are healthy enough to keep moving.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

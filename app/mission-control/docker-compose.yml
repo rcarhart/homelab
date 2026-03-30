@@ -1,0 +1,7 @@
+services:
+  mission-control:
+    build: .
+    container_name: mission-control
+    ports:
+      - "8101:80"
+    restart: unless-stopped
