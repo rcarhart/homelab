@@ -1,0 +1,9 @@
+from fastapi import APIRouter
+
+from . import controller_shared_collection_comments, controller_shared_collection_members, controller_shared_collections
+
+router = APIRouter()
+
+router.include_router(controller_shared_collections.router)
+router.include_router(controller_shared_collection_members.router)
+router.include_router(controller_shared_collection_comments.router)

@@ -12,6 +12,7 @@ from . import (
     parser,
     recipe,
     shared,
+    shared_collections,
     unit_and_foods,
     users,
     validators,
@@ -27,6 +28,7 @@ router.include_router(groups.router)
 router.include_router(recipe.router)
 router.include_router(organizers.router)
 router.include_router(shared.router)
+router.include_router(shared_collections.router)
 router.include_router(comments.router)
 router.include_router(parser.router)
 router.include_router(unit_and_foods.router)
