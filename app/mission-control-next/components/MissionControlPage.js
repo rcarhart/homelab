@@ -1,3 +1,6 @@
+'use client';
+
+import { useMemo, useState } from 'react';
 import { missionData } from '../lib/data';
 
 const toneClass = {
@@ -17,163 +20,301 @@ const dotClass = {
 };
 
 const summaryOrder = [
-  ['projectsInFlight', 'Projects in flight', 'Across software, dashboards, audits, and infrastructure work.'],
-  ['pendingApproval', 'Pending approval', 'Items currently waiting on Ross before work can continue.'],
-  ['agentsOnline', 'Agents online', 'Planner, UI, engineering, backup, security, and researcher workers.'],
-  ['urgentBlockers', 'Urgent blockers', 'Dependencies currently slowing execution.'],
-];
-
-const columns = [
-  ['backlog', 'Backlog'],
-  ['inProgress', 'In Progress'],
-  ['waitingApproval', 'Waiting on Approval'],
-  ['done', 'Done / Demo Ready'],
+  ['projectsInFlight', 'Projects in flight'],
+  ['pendingApproval', 'Pending approval'],
+  ['agentsOnline', 'Agents online'],
+  ['urgentBlockers', 'Urgent blockers'],
 ];
 
 export default function MissionControlPage() {
-  return (
-    <div className="shell">
-      <div className="topbar">
-        <div className="title">
-          <h1>Mission Control</h1>
-          <p>
-            A locally hosted Next.js operations dashboard for project status, pending approvals, scheduled cron work,
-            and future multi-agent heartbeat.
-          </p>
-        </div>
-        <div className="actions">
-          <span className="chip">Next.js build</span>
-          <span className="chip">Local host</span>
-          <button className="btn">Create New Project</button>
-        </div>
-      </div>
+  const [activeView, setActiveView] = useState('tasks');
+  const reviewCount = missionData.tasks.review.length;
 
-      <div className="overview">
-        {summaryOrder.map(([key, label, sub]) => (
-          <div className="panel metric" key={key}>
-            <div className="eyebrow">{label}</div>
-            <div className="value">{missionData.summary[key]}</div>
-            <div className="sub">{sub}</div>
+  const content = useMemo(() => {
+    if (activeView === 'tasks') {
+      return <TasksView />;
+    }
+    if (activeView === 'calendar') {
+      return <CalendarView />;
+    }
+    if (activeView === 'projects') {
+      return <ProjectsView />;
+    }
+    if (activeView === 'memories') {
+      return <MemoriesView />;
+    }
+    if (activeView === 'docs') {
+      return <DocsView />;
+    }
+    if (activeView === 'team') {
+      return <TeamView />;
+    }
+    if (activeView === 'office') {
+      return <OfficeView />;
+    }
+    return <OverviewView />;
+  }, [activeView]);
+
+  return (
+    <div className="app-shell">
+      <aside className="sidebar-nav">
+        <div className="brand-block">
+          <div className="brand-mark">MC</div>
+          <div>
+            <div className="brand-title">Mission Control</div>
+            <div className="brand-subtitle">Linear-style ops layer</div>
+          </div>
+        </div>
+
+        <nav className="nav-list">
+          {missionData.nav.map((item) => {
+            const isActive = activeView === item.key;
+            const badge = item.key === 'tasks' ? reviewCount : null;
+            return (
+              <button
+                key={item.key}
+                className={`nav-item ${isActive ? 'active' : ''}`}
+                onClick={() => setActiveView(item.key)}
+              >
+                <span>{item.label}</span>
+                {badge ? <span className="nav-badge">{badge}</span> : null}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="sidebar-footer">
+          <div className="footer-card">
+            <strong>Heartbeat contract</strong>
+            <div className="small">
+              Every heartbeat should check the tasks board, especially backlog, in progress, review, and live activity.
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main className="content-shell">
+        <div className="content-topbar">
+          <div>
+            <h1>{activeView === 'tasks' ? 'Tasks' : activeView.charAt(0).toUpperCase() + activeView.slice(1)}</h1>
+            <p>
+              {activeView === 'tasks'
+                ? 'Backlog, In Progress, Review, and Live Activity define the operational loop.'
+                : 'Mission Control sections can evolve into live connected modules over time.'}
+            </p>
+          </div>
+          <div className="topbar-actions">
+            <span className="chip">Next.js</span>
+            <span className="chip">Local host</span>
+            <button className="btn-primary">New Item</button>
+          </div>
+        </div>
+
+        <div className="summary-row">
+          {summaryOrder.map(([key, label]) => (
+            <div className="summary-card" key={key}>
+              <div className="summary-label">{label}</div>
+              <div className="summary-value">{missionData.summary[key]}</div>
+            </div>
+          ))}
+        </div>
+
+        {content}
+      </main>
+    </div>
+  );
+}
+
+function TasksView() {
+  const columns = [
+    ['backlog', 'Backlog'],
+    ['inProgress', 'In Progress'],
+    ['review', 'Review'],
+  ];
+
+  return (
+    <div className="tasks-layout">
+      <section className="board-panel">
+        <div className="section-head">
+          <h2>Task Board</h2>
+          <span className="chip">Review lane = Ross approval</span>
+        </div>
+        <div className="kanban-grid three">
+          {columns.map(([key, label]) => {
+            const items = missionData.tasks[key] || [];
+            return (
+              <div className="board-column" key={key}>
+                <div className="column-head">
+                  <div className="column-title">{label}</div>
+                  <div className="count-pill">{items.length}</div>
+                </div>
+                {items.map((item) => (
+                  <div className="task-card" key={item.title}>
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
+                    <div className="tags">
+                      {item.tags.map((tag) => (
+                        <span className={`tag ${toneClass[tag.tone] || ''}`} key={tag.label}>
+                          {tag.label}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="meta-row">
+                      <span>{item.owner}</span>
+                      <span>{item.priority}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <aside className="activity-panel">
+        <div className="section-head">
+          <h2>Live Activity</h2>
+          <span className="chip">Heartbeat feed</span>
+        </div>
+        <div className="activity-list">
+          {missionData.tasks.liveActivity.map((item) => (
+            <div className="activity-item" key={`${item.time}-${item.title}`}>
+              <div className="activity-time">{item.time}</div>
+              <strong>{item.title}</strong>
+              <div className="small">{item.detail}</div>
+            </div>
+          ))}
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function CalendarView() {
+  return (
+    <section className="single-panel">
+      <div className="section-head">
+        <h2>Cron Calendar</h2>
+        <span className="chip">Scheduled tasks and proactive work</span>
+      </div>
+      <div className="calendar-list">
+        {missionData.cronJobs.map((job) => (
+          <div className="calendar-item" key={job.name}>
+            <strong>{job.name}</strong>
+            <div className="small">{job.description}</div>
+            <div className="calendar-meta">
+              <span>{job.displayDate}</span>
+              <span>{job.displayTime}</span>
+              <span>{job.kind}</span>
+            </div>
+            <div className="status-pill">{job.status}</div>
           </div>
         ))}
       </div>
+    </section>
+  );
+}
 
-      <div className="main-grid">
-        <div className="panel">
-          <div className="section-head">
-            <h2>Project Board</h2>
-            <span className="chip">Kanban + project visibility</span>
+function ProjectsView() {
+  return (
+    <section className="single-panel">
+      <div className="section-head">
+        <h2>Projects</h2>
+        <span className="chip">High-level focus layer</span>
+      </div>
+      <div className="project-list">
+        {missionData.projects.map((project) => (
+          <div className="project-card" key={project.title}>
+            <h3>{project.title}</h3>
+            <div className="status-inline">{project.status}</div>
+            <p>{project.detail}</p>
           </div>
-          <div className="kanban">
-            {columns.map(([key, label]) => {
-              const items = missionData.projects[key] || [];
-              return (
-                <div className="column" key={key}>
-                  <div className="col-head">
-                    <div className="col-title">{label}</div>
-                    <div className="count">{items.length}</div>
-                  </div>
-                  {items.map((item) => (
-                    <div className="card" key={item.title}>
-                      <h3 className="project-title">{item.title}</h3>
-                      <p className="project-desc">{item.description}</p>
-                      <div className="tags">
-                        {item.tags.map((tag) => (
-                          <span className={`tag ${toneClass[tag.tone] || ''}`} key={tag.label}>
-                            {tag.label}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="meta-row">
-                        <span>Owner: {item.owner}</span>
-                        <span>Priority: {item.priority}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-        <div className="sidebar">
-          <div className="panel">
-            <div className="section-head">
-              <h2>Pending Approval</h2>
-              <span className="chip">Ross queue</span>
-            </div>
-            <div className="approval-list">
-              {missionData.approvals.map((item) => (
-                <div className="approval-item" key={item.title}>
-                  <strong>{item.title}</strong>
-                  <div className="small">{item.description}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+function MemoriesView() {
+  return (
+    <section className="single-panel">
+      <div className="section-head">
+        <h2>Memories</h2>
+        <span className="chip">Searchable journal layer</span>
+      </div>
+      <div className="note-list">
+        {missionData.memories.map((item) => (
+          <div className="note-card" key={item}>{item}</div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-          <div className="panel">
-            <div className="section-head">
-              <h2>Agent Heartbeat</h2>
-              <span className="chip">Future multi-agent ops</span>
-            </div>
-            <div className="agent-list">
-              {missionData.agents.map((agent) => (
-                <div className="agent-item" key={agent.name}>
-                  <div className="agent-top">
-                    <strong>
-                      <span className={`status-dot ${dotClass[agent.tone] || 'dot-blue'}`} />
-                      {agent.name}
-                    </strong>
-                    <span className="small">{agent.status}</span>
-                  </div>
-                  <div className="small">{agent.detail}</div>
-                  <div className="pulse"><span style={{ width: `${agent.pulse}%` }} /></div>
-                </div>
-              ))}
-            </div>
-          </div>
+function DocsView() {
+  return (
+    <section className="single-panel">
+      <div className="section-head">
+        <h2>Docs</h2>
+        <span className="chip">Searchable documents</span>
+      </div>
+      <div className="note-list">
+        {missionData.docs.map((item) => (
+          <div className="note-card" key={item}>{item}</div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-          <div className="panel">
-            <div className="section-head">
-              <h2>Cron Calendar</h2>
-              <span className="chip">Scheduled jobs</span>
-            </div>
-            <div className="calendar-list">
-              {missionData.cronJobs.map((job) => (
-                <div className="calendar-item" key={job.name}>
-                  <strong>{job.name}</strong>
-                  <div className="small">{job.description}</div>
-                  <div className="calendar-meta">
-                    <span>{job.displayDate}</span>
-                    <span>{job.displayTime}</span>
-                    <span>{job.kind}</span>
-                  </div>
-                  <div className="status-pill">{job.status}</div>
-                </div>
-              ))}
-            </div>
+function TeamView() {
+  return (
+    <section className="single-panel">
+      <div className="section-head">
+        <h2>Team</h2>
+        <span className="chip">Roles + mission alignment</span>
+      </div>
+      <div className="team-mission">{missionData.team.mission}</div>
+      <div className="team-grid">
+        {missionData.agents.map((agent) => (
+          <div className="team-card" key={agent.name}>
+            <strong><span className={`status-dot ${dotClass[agent.tone] || 'dot-blue'}`} />{agent.name}</strong>
+            <div className="small">{agent.status}</div>
+            <p>{agent.detail}</p>
           </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-          <div className="panel">
-            <div className="section-head">
-              <h2>Recent Heartbeats</h2>
-              <span className="chip">Activity snapshot</span>
-            </div>
-            <div className="heartbeat-list">
-              {missionData.heartbeats.map((item) => (
-                <div className="heartbeat-item" key={item.title}>
-                  <strong>{item.title}</strong>
-                  <div className="small">{item.description}</div>
-                </div>
-              ))}
-            </div>
-            <div className="footer-note">
-              This is the Next.js foundation. Next step is wiring live project state, live cron data, and actual agent telemetry.
-            </div>
-          </div>
+function OfficeView() {
+  return (
+    <section className="single-panel">
+      <div className="section-head">
+        <h2>Office</h2>
+        <span className="chip">Pixel-art activity view later</span>
+      </div>
+      <div className="office-placeholder">
+        <div className="office-box">Office view will become the playful, visual representation of agent activity after the real task + heartbeat data model is stable.</div>
+      </div>
+    </section>
+  );
+}
+
+function OverviewView() {
+  return (
+    <section className="single-panel">
+      <div className="section-head">
+        <h2>Overview</h2>
+        <span className="chip">Top-level summary</span>
+      </div>
+      <div className="project-list">
+        <div className="project-card">
+          <h3>Focus right now</h3>
+          <p>Tasks is the main operational center. Heartbeats should always check backlog, in progress, review, and live activity.</p>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
