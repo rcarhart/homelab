@@ -19,105 +19,94 @@ const dotClass = {
   red: 'dot-red',
 };
 
-const summaryOrder = [
-  ['projectsInFlight', 'Projects in flight'],
-  ['pendingApproval', 'Pending approval'],
-  ['agentsOnline', 'Agents online'],
-  ['urgentBlockers', 'Urgent blockers'],
-];
-
 export default function MissionControlPage() {
   const [activeView, setActiveView] = useState('tasks');
-  const reviewCount = missionData.tasks.review.length;
 
   const content = useMemo(() => {
-    if (activeView === 'tasks') {
-      return <TasksView />;
+    switch (activeView) {
+      case 'tasks':
+        return <TasksView />;
+      case 'agents':
+        return <AgentsView />;
+      case 'approvals':
+        return <ApprovalsView />;
+      case 'calendar':
+        return <CalendarView />;
+      case 'projects':
+        return <ProjectsView />;
+      case 'memory':
+        return <MemoryView />;
+      case 'docs':
+        return <DocsView />;
+      case 'office':
+        return <OfficeView />;
+      case 'team':
+        return <TeamView />;
+      default:
+        return <TasksView />;
     }
-    if (activeView === 'calendar') {
-      return <CalendarView />;
-    }
-    if (activeView === 'projects') {
-      return <ProjectsView />;
-    }
-    if (activeView === 'memories') {
-      return <MemoriesView />;
-    }
-    if (activeView === 'docs') {
-      return <DocsView />;
-    }
-    if (activeView === 'team') {
-      return <TeamView />;
-    }
-    if (activeView === 'office') {
-      return <OfficeView />;
-    }
-    return <OverviewView />;
   }, [activeView]);
 
   return (
-    <div className="app-shell">
-      <aside className="sidebar-nav">
-        <div className="brand-block">
-          <div className="brand-mark">MC</div>
+    <div className="layout-shell">
+      <aside className="left-rail">
+        <div className="brand-wrap">
+          <div className="brand-badge">M</div>
           <div>
             <div className="brand-title">Mission Control</div>
-            <div className="brand-subtitle">Linear-style ops layer</div>
+            <div className="brand-subtitle">OpenClaw Operating Layer</div>
           </div>
         </div>
 
-        <nav className="nav-list">
-          {missionData.nav.map((item) => {
-            const isActive = activeView === item.key;
-            const badge = item.key === 'tasks' ? reviewCount : null;
-            return (
-              <button
-                key={item.key}
-                className={`nav-item ${isActive ? 'active' : ''}`}
-                onClick={() => setActiveView(item.key)}
-              >
-                <span>{item.label}</span>
-                {badge ? <span className="nav-badge">{badge}</span> : null}
-              </button>
-            );
-          })}
+        <nav className="tool-nav">
+          {missionData.nav.map((item) => (
+            <button
+              key={item.key}
+              className={`tool-link ${activeView === item.key ? 'active' : ''}`}
+              onClick={() => setActiveView(item.key)}
+            >
+              <span>{item.label}</span>
+            </button>
+          ))}
         </nav>
 
-        <div className="sidebar-footer">
-          <div className="footer-card">
-            <strong>Heartbeat contract</strong>
-            <div className="small">
-              Every heartbeat should check the tasks board, especially backlog, in progress, review, and live activity.
-            </div>
-          </div>
+        <div className="rail-box">
+          <div className="rail-box-label">Mission</div>
+          <p>{missionData.team.mission}</p>
         </div>
       </aside>
 
-      <main className="content-shell">
-        <div className="content-topbar">
+      <main className="main-shell">
+        <header className="main-topbar">
           <div>
-            <h1>{activeView === 'tasks' ? 'Tasks' : activeView.charAt(0).toUpperCase() + activeView.slice(1)}</h1>
-            <p>
-              {activeView === 'tasks'
-                ? 'Backlog, In Progress, Review, and Live Activity define the operational loop.'
-                : 'Mission Control sections can evolve into live connected modules over time.'}
-            </p>
+            <h1>{labelFor(activeView)}</h1>
+            <p>{descriptionFor(activeView)}</p>
           </div>
-          <div className="topbar-actions">
-            <span className="chip">Next.js</span>
-            <span className="chip">Local host</span>
-            <button className="btn-primary">New Item</button>
+          <div className="toolbar-actions">
+            <span className="status-chip">Next.js</span>
+            <span className="status-chip">Local host</span>
+            <button className="create-btn">+ New task</button>
           </div>
-        </div>
+        </header>
 
-        <div className="summary-row">
-          {summaryOrder.map(([key, label]) => (
-            <div className="summary-card" key={key}>
-              <div className="summary-label">{label}</div>
-              <div className="summary-value">{missionData.summary[key]}</div>
-            </div>
-          ))}
-        </div>
+        <section className="kpi-row">
+          <div className="kpi-card">
+            <div className="kpi-label">This week</div>
+            <div className="kpi-value">{missionData.summary.thisWeek}</div>
+          </div>
+          <div className="kpi-card">
+            <div className="kpi-label">In progress</div>
+            <div className="kpi-value">{missionData.summary.inProgress}</div>
+          </div>
+          <div className="kpi-card">
+            <div className="kpi-label">Total</div>
+            <div className="kpi-value">{missionData.summary.total}</div>
+          </div>
+          <div className="kpi-card">
+            <div className="kpi-label">Completion</div>
+            <div className="kpi-value">{missionData.summary.completion}</div>
+          </div>
+        </section>
 
         {content}
       </main>
@@ -130,58 +119,56 @@ function TasksView() {
     ['backlog', 'Backlog'],
     ['inProgress', 'In Progress'],
     ['review', 'Review'],
+    ['done', 'Done'],
   ];
 
   return (
-    <div className="tasks-layout">
-      <section className="board-panel">
-        <div className="section-head">
-          <h2>Task Board</h2>
-          <span className="chip">Review lane = Ross approval</span>
+    <div className="task-layout">
+      <section className="task-board-wrap">
+        <div className="filter-bar">
+          <span className="filter-pill">Board</span>
+          <span className="filter-pill">All projects</span>
+          <span className="filter-pill">All agents</span>
+          <span className="filter-pill review">Review = Ross approval</span>
         </div>
-        <div className="kanban-grid three">
-          {columns.map(([key, label]) => {
-            const items = missionData.tasks[key] || [];
-            return (
-              <div className="board-column" key={key}>
-                <div className="column-head">
-                  <div className="column-title">{label}</div>
-                  <div className="count-pill">{items.length}</div>
-                </div>
-                {items.map((item) => (
-                  <div className="task-card" key={item.title}>
-                    <h3>{item.title}</h3>
-                    <p>{item.description}</p>
-                    <div className="tags">
-                      {item.tags.map((tag) => (
-                        <span className={`tag ${toneClass[tag.tone] || ''}`} key={tag.label}>
-                          {tag.label}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="meta-row">
-                      <span>{item.owner}</span>
-                      <span>{item.priority}</span>
-                    </div>
-                  </div>
-                ))}
+
+        <div className="kanban-board">
+          {columns.map(([key, label]) => (
+            <div className="kanban-col" key={key}>
+              <div className="kanban-head">
+                <div className="kanban-title">{label}</div>
+                <div className="kanban-count">{missionData.tasks[key].length}</div>
               </div>
-            );
-          })}
+              {missionData.tasks[key].map((item) => (
+                <div className="task-card" key={item.title}>
+                  <div className="task-title">{item.title}</div>
+                  <div className="task-desc">{item.description}</div>
+                  <div className="tags">
+                    {item.tags.map((tag) => (
+                      <span className={`tag ${toneClass[tag.tone] || ''}`} key={tag.label}>{tag.label}</span>
+                    ))}
+                  </div>
+                  <div className="task-meta">
+                    <span>{item.owner}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </section>
 
-      <aside className="activity-panel">
-        <div className="section-head">
+      <aside className="activity-rail">
+        <div className="rail-head">
           <h2>Live Activity</h2>
-          <span className="chip">Heartbeat feed</span>
+          <span className="status-chip">5 updates</span>
         </div>
-        <div className="activity-list">
-          {missionData.tasks.liveActivity.map((item) => (
-            <div className="activity-item" key={`${item.time}-${item.title}`}>
+        <div className="activity-feed">
+          {missionData.tasks.activity.map((item) => (
+            <div className="activity-card" key={`${item.time}-${item.title}`}>
               <div className="activity-time">{item.time}</div>
               <strong>{item.title}</strong>
-              <div className="small">{item.detail}</div>
+              <div className="small-copy">{item.detail}</div>
             </div>
           ))}
         </div>
@@ -190,131 +177,148 @@ function TasksView() {
   );
 }
 
+function AgentsView() {
+  return (
+    <div className="simple-grid two">
+      {missionData.agents.map((agent) => (
+        <div className="info-card" key={agent.name}>
+          <div className="agent-line">
+            <strong><span className={`status-dot ${dotClass[agent.tone] || 'dot-blue'}`} />{agent.name}</strong>
+            <span className="status-chip">{agent.status}</span>
+          </div>
+          <div className="muted-line">{agent.role}</div>
+          <p>{agent.detail}</p>
+          <div className="muted-line">Heartbeat: {agent.heartbeat}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ApprovalsView() {
+  return (
+    <div className="simple-grid one">
+      {missionData.approvals.map((item) => (
+        <div className="info-card" key={item}>
+          <strong>{item}</strong>
+          <div className="muted-line">Waiting on Ross</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function CalendarView() {
   return (
-    <section className="single-panel">
-      <div className="section-head">
-        <h2>Cron Calendar</h2>
-        <span className="chip">Scheduled tasks and proactive work</span>
-      </div>
-      <div className="calendar-list">
-        {missionData.cronJobs.map((job) => (
-          <div className="calendar-item" key={job.name}>
-            <strong>{job.name}</strong>
-            <div className="small">{job.description}</div>
-            <div className="calendar-meta">
-              <span>{job.displayDate}</span>
-              <span>{job.displayTime}</span>
-              <span>{job.kind}</span>
-            </div>
-            <div className="status-pill">{job.status}</div>
-          </div>
-        ))}
-      </div>
-    </section>
+    <div className="simple-grid one">
+      {missionData.calendar.map((item) => (
+        <div className="info-card" key={item.title}>
+          <strong>{item.title}</strong>
+          <div className="muted-line">{item.date} • {item.time}</div>
+          <p>{item.kind}</p>
+        </div>
+      ))}
+    </div>
   );
 }
 
 function ProjectsView() {
   return (
-    <section className="single-panel">
-      <div className="section-head">
-        <h2>Projects</h2>
-        <span className="chip">High-level focus layer</span>
-      </div>
-      <div className="project-list">
-        {missionData.projects.map((project) => (
-          <div className="project-card" key={project.title}>
-            <h3>{project.title}</h3>
-            <div className="status-inline">{project.status}</div>
-            <p>{project.detail}</p>
-          </div>
-        ))}
-      </div>
-    </section>
+    <div className="simple-grid three">
+      {missionData.projects.map((project) => (
+        <div className="info-card" key={project.title}>
+          <strong>{project.title}</strong>
+          <div className="muted-line">{project.status} • Owner: {project.owner}</div>
+          <p>{project.detail}</p>
+        </div>
+      ))}
+    </div>
   );
 }
 
-function MemoriesView() {
+function MemoryView() {
   return (
-    <section className="single-panel">
-      <div className="section-head">
-        <h2>Memories</h2>
-        <span className="chip">Searchable journal layer</span>
+    <div className="memory-layout">
+      <div className="info-card">
+        <strong>Daily Memory</strong>
+        <div className="list-stack">
+          {missionData.memory.daily.map((item) => <div key={item} className="memory-item">{item}</div>)}
+        </div>
       </div>
-      <div className="note-list">
-        {missionData.memories.map((item) => (
-          <div className="note-card" key={item}>{item}</div>
-        ))}
+      <div className="info-card">
+        <strong>Long-Term Memory</strong>
+        <div className="list-stack">
+          {missionData.memory.longTerm.map((item) => <div key={item} className="memory-item">{item}</div>)}
+        </div>
       </div>
-    </section>
+    </div>
   );
 }
 
 function DocsView() {
   return (
-    <section className="single-panel">
-      <div className="section-head">
-        <h2>Docs</h2>
-        <span className="chip">Searchable documents</span>
-      </div>
-      <div className="note-list">
-        {missionData.docs.map((item) => (
-          <div className="note-card" key={item}>{item}</div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function TeamView() {
-  return (
-    <section className="single-panel">
-      <div className="section-head">
-        <h2>Team</h2>
-        <span className="chip">Roles + mission alignment</span>
-      </div>
-      <div className="team-mission">{missionData.team.mission}</div>
-      <div className="team-grid">
-        {missionData.agents.map((agent) => (
-          <div className="team-card" key={agent.name}>
-            <strong><span className={`status-dot ${dotClass[agent.tone] || 'dot-blue'}`} />{agent.name}</strong>
-            <div className="small">{agent.status}</div>
-            <p>{agent.detail}</p>
-          </div>
-        ))}
-      </div>
-    </section>
+    <div className="simple-grid two">
+      {missionData.docs.map((item) => (
+        <div className="info-card" key={item}>
+          <strong>{item}</strong>
+          <div className="muted-line">Searchable document</div>
+        </div>
+      ))}
+    </div>
   );
 }
 
 function OfficeView() {
   return (
-    <section className="single-panel">
-      <div className="section-head">
-        <h2>Office</h2>
-        <span className="chip">Pixel-art activity view later</span>
-      </div>
-      <div className="office-placeholder">
-        <div className="office-box">Office view will become the playful, visual representation of agent activity after the real task + heartbeat data model is stable.</div>
-      </div>
-    </section>
+    <div className="info-card office-box">
+      <strong>Office</strong>
+      <p>A 2D visual office should come after Tasks, Agents, Approvals, and Calendar are properly real. It should visualize Zeus, Kelly, Steve, Charlie, Zhou, and Kevin at work.</p>
+    </div>
   );
 }
 
-function OverviewView() {
+function TeamView() {
   return (
-    <section className="single-panel">
-      <div className="section-head">
-        <h2>Overview</h2>
-        <span className="chip">Top-level summary</span>
-      </div>
-      <div className="project-list">
-        <div className="project-card">
-          <h3>Focus right now</h3>
-          <p>Tasks is the main operational center. Heartbeats should always check backlog, in progress, review, and live activity.</p>
+    <div className="simple-grid one">
+      <div className="info-card">
+        <strong>Org Chart</strong>
+        <div className="muted-line">{missionData.team.mission}</div>
+        <div className="list-stack">
+          {missionData.team.structure.map((item) => (
+            <div key={`${item.parent}-${item.child}`} className="memory-item">{item.parent} → {item.child}</div>
+          ))}
         </div>
       </div>
-    </section>
+    </div>
   );
+}
+
+function labelFor(key) {
+  const map = {
+    tasks: 'Tasks',
+    agents: 'Agents',
+    approvals: 'Approvals',
+    calendar: 'Calendar',
+    projects: 'Projects',
+    memory: 'Memory',
+    docs: 'Docs',
+    office: 'Office',
+    team: 'Team',
+  };
+  return map[key] || 'Mission Control';
+}
+
+function descriptionFor(key) {
+  const map = {
+    tasks: 'Track active work across backlog, in progress, review, done, and live activity.',
+    agents: 'See your named agents, their roles, heartbeat, and current status.',
+    approvals: 'Everything currently waiting on your sign-off.',
+    calendar: 'Scheduled cron jobs and proactive tasks.',
+    projects: 'High-level progress across active initiatives.',
+    memory: 'Daily memory and long-term memory views.',
+    docs: 'All generated docs, plans, and specs.',
+    office: 'A future playful 2D visualization of agent activity.',
+    team: 'Org chart and role alignment for Zeus and the team.',
+  };
+  return map[key] || '';
 }
