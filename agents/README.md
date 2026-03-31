@@ -2,6 +2,10 @@
 
 This directory is the source-controlled home for the homelab's agent system design.
 
+See also:
+- `MISSION_CONTROL.md` for coordination rules and Discord structure
+- `ROSTER.md` for worker names and role mapping
+
 It documents:
 
 - worker roles
