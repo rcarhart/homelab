@@ -5,6 +5,9 @@ This repository contains the practical homelab app and service directories Ross 
 It is no longer the control plane for agent architecture.
 The OpenClaw agent system now lives under the active OpenClaw workspace and runtime, not in a parallel planning layer inside this repo.
 
+Mission Control also no longer lives here.
+Mission Control is now a standalone project because it manages the broader Ross + Sir Alex operating relationship, not just homelab services.
+
 ## What this repo is for
 
 Use this repository for:
@@ -18,8 +21,9 @@ Do not use this repo as the primary source of truth for:
 - worker rosters
 - old roleplay-style agent naming systems
 - OpenClaw routing or coordination policy
+- Mission Control planning or implementation
 
-Those now belong in the active OpenClaw workspace and runtime.
+Those now belong in the active OpenClaw workspace/runtime or the standalone Mission Control project.
 
 ## Current structure
 
@@ -28,8 +32,6 @@ homelab/
 ├─ app/
 │  ├─ mealie/
 │  ├─ mealie-dev/
-│  ├─ mission-control/
-│  ├─ mission-control-next/
 │  ├─ grocy/
 │  ├─ immich/
 │  ├─ paperless/
@@ -49,8 +51,7 @@ This is the main reason the repo still exists.
 Examples:
 - `app/mealie/` — deployed Mealie instance, backups, scripts, and related runtime files
 - `app/mealie-dev/` — source checkout / dev environment for Mealie feature work
-- `app/mission-control-next/` — current Next.js Mission Control implementation path
-- `app/mission-control/` — older Mission Control prototype that should be reviewed for retirement or archival
+- `app/grocy/`, `app/immich/`, `app/paperless/`, `app/plex/` — service-specific folders
 
 ### `docs/`
 Supporting repository/project docs that still belong to the homelab itself.
@@ -66,11 +67,12 @@ The active coordination model is now:
 - **Bruno** — supervisor / internal orchestrator
 - specialist agents used behind the scenes when needed
 
-Mission Control is now treated as an active project and should evolve into the main dashboard Ross uses to understand project status, ownership, blockers, next steps, and repo hygiene.
+Mission Control is a separate project outside this repo.
+Homelab-related work may appear inside Mission Control, but Mission Control itself is not a homelab app.
 
 ## Repo hygiene rules
 
-- keep files that clearly support active projects
+- keep files that clearly support active homelab projects
 - remove stale planning layers when they duplicate newer OpenClaw sources of truth
 - avoid keeping historical architecture docs in multiple places
 - generated build output and installed dependencies should not be treated as intentional long-term project structure
@@ -81,5 +83,6 @@ This repo has evolved over time. Some historical layers made sense when access a
 
 The goal going forward is simple:
 - one clear source of truth for agent architecture
-- one clear source of truth for active project work
+- one clear source of truth for active homelab work
+- Mission Control kept separate as its own project
 - fewer stale layers pretending to still be important

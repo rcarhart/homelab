@@ -8,6 +8,7 @@ from .shared_recipe_collection import (
     SharedRecipeCollectionUpdate,
     SharedRecipeCommentCreate,
     SharedRecipeCommentOut,
+    SharedRecipeCopyRequest,
     SharedRecipeLinkCreate,
     SharedRecipeLinkOut,
 )

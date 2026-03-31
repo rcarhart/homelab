@@ -31,17 +31,19 @@ class SharedCollectionCommentsController(BaseUserController):
 
     @cached_property
     def service(self):
-        return SharedCollectionService(self.repos, self.user)
+        return SharedCollectionService(self.repos, self.user, self.household, self.translator)
 
     @router.get("", response_model=list[SharedRecipeCommentOut])
     def get_all(self, collection_id: UUID4, recipe_id: UUID4):
+        self.service.assert_view_access(collection_id)
+        link = self.service.get_collection_recipe_link(collection_id, recipe_id)
+        if not link:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond(message="Not found."))
         return self.repo.multi_query({"collection_id": collection_id, "recipe_id": recipe_id})
 
     @router.post("", response_model=SharedRecipeCommentOut, status_code=201)
     def create_one(self, collection_id: UUID4, recipe_id: UUID4, data: SharedRecipeCommentCreate):
-        if data.collection_id != collection_id or data.recipe_id != recipe_id:
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, ErrorResponse.respond(message="Context mismatch"))
-        payload = self.service.validate_comment_payload(data)
+        payload = self.service.validate_comment_payload(collection_id, recipe_id, data)
         return self.mixins.create_one(payload)
 
     @router.delete("/{item_id}", response_model=SharedRecipeCommentOut)
@@ -49,4 +51,8 @@ class SharedCollectionCommentsController(BaseUserController):
         comment = self.repo.get_one(item_id)
         if not comment or comment.collection_id != collection_id or comment.recipe_id != recipe_id:
             raise HTTPException(status.HTTP_404_NOT_FOUND, ErrorResponse.respond(message="Not found."))
+        if comment.user_id != self.user.id:
+            self.service.assert_manage_access(collection_id)
+        else:
+            self.service.assert_view_access(collection_id)
         return self.mixins.delete_one(item_id)

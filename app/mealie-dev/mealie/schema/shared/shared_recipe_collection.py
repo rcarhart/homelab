@@ -11,6 +11,7 @@ from mealie.db.models.shared.shared_recipe_link import SharedRecipeLink
 from mealie.db.models.users.users import User
 from mealie.schema._mealie import MealieModel
 from mealie.schema._mealie.mealie_model import UpdatedAtField
+from mealie.schema.recipe.recipe import RecipeSummary
 from mealie.schema.response.pagination import PaginationBase
 
 
@@ -72,24 +73,26 @@ class SharedRecipeCollectionMemberOut(SharedRecipeCollectionMemberCreate):
 class SharedRecipeLinkCreate(MealieModel):
     collection_id: UUID4
     recipe_id: UUID4
-    shared_by_user_id: UUID4
+    shared_by_user_id: UUID4 | None = None
 
 
 class SharedRecipeLinkOut(SharedRecipeLinkCreate):
     id: UUID4
     created_at: datetime
     updated_at: datetime = UpdatedAtField(...)
+    recipe: RecipeSummary | None = None
+    shared_by_user: SharedCollectionUserBase | None = None
     model_config = ConfigDict(from_attributes=True)
 
     @classmethod
     def loader_options(cls) -> list[LoaderOption]:
-        return [joinedload(SharedRecipeLink.shared_by_user)]
+        return [joinedload(SharedRecipeLink.shared_by_user), joinedload(SharedRecipeLink.recipe)]
 
 
 class SharedRecipeCommentCreate(MealieModel):
     collection_id: UUID4
     recipe_id: UUID4
-    user_id: UUID4
+    user_id: UUID4 | None = None
     text: str
 
 
@@ -103,6 +106,10 @@ class SharedRecipeCommentOut(SharedRecipeCommentCreate):
     @classmethod
     def loader_options(cls) -> list[LoaderOption]:
         return [joinedload(SharedRecipeComment.user)]
+
+
+class SharedRecipeCopyRequest(MealieModel):
+    name: str | None = None
 
 
 class SharedRecipeCollectionPagination(PaginationBase):
