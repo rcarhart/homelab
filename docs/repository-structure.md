@@ -1,23 +1,13 @@
 # Repository Structure
 
-This repo is organized so each major system has a clear source of truth without mixing deployment definitions, secrets, runtime state, and backups.
+This repo is organized so each homelab system has a clear boundary without mixing deployment definitions, secrets, runtime state, and unrelated product work.
 
 ## Folder layout
 
 ```text
-homelab/
+projects/homelab/
 ├─ README.md
-├─ agents/
-│  ├─ README.md
-│  ├─ providers.md
-│  ├─ dashboard-access.md
-│  └─ workers/
-├─ openclaw/
-│  ├─ README.md
-│  ├─ .env.example
-│  ├─ config/
-│  ├─ scripts/
-│  └─ docs/
+├─ AGENTS.md
 ├─ app/
 ├─ infrastructure/
 ├─ home-assistant/
@@ -28,10 +18,9 @@ homelab/
 ## Source of truth by area
 
 ### `app/` and `infrastructure/`
-Use these for Dockerized services and infrastructure components.
+Use these for Dockerized homelab services and supporting infrastructure components.
 
 Git should contain:
-
 - `docker-compose.yml`
 - `.env.example`
 - `README.md`
@@ -39,18 +28,18 @@ Git should contain:
 - human-managed config files
 
 Git should not contain:
-
 - real `.env` files
 - databases
 - uploaded media
 - service backups
 - logs and caches
 
+Rule: if something is a standalone product rather than a homelab-operated service, it belongs in a sibling repo under `/home/docker/projects/`, not `projects/homelab/app/`.
+
 ### `home-assistant/`
 Use this for curated, source-controlled Home Assistant configuration only.
 
 Git should contain intentionally managed artifacts such as:
-
 - `configuration.yaml`
 - `dashboards/`
 - `packages/`
@@ -60,11 +49,9 @@ Git should contain intentionally managed artifacts such as:
 - selected `www/` assets
 - `secrets.example.yaml`
 
-Git should not contain runtime/generated/sensitive artifacts such as:
-
+Git should not contain runtime-generated or sensitive artifacts such as:
 - `.storage/`
 - `.cache/`
-- `.cloud/`
 - logs
 - databases
 - backups
@@ -72,42 +59,19 @@ Git should not contain runtime/generated/sensitive artifacts such as:
 - `tts/`
 - real `secrets.yaml`
 
-### `agents/`
-Use this for the human-readable agent control plane.
-
-This directory documents:
-
-- worker roles
-- provider/model routing intent
-- dashboard and access boundaries
-- planning and worker responsibilities
-
-### `openclaw/`
-Use this for the OpenClaw deployment and operational model.
-
-Git should contain:
-
-- deployment definitions
-- example env/config files
-- scripts
-- operations docs
-
-Git should not contain:
-
-- live secrets and tokens
-- runtime databases
-- generated session state
-- logs and transient artifacts
-
 ### `archive/`
-Use this for lightweight in-repo archive markers and migration notes.
+Use this for lightweight migration notes and small archive markers only.
 
 Do not place raw runtime dumps, secrets, databases, or generated Home Assistant state in git archives.
-If a legacy system needs to be retained temporarily, keep the heavy/raw copy outside the repo and record its status here with a short README.
+
+## Agent boundary
+
+- OpenClaw source of truth lives under `/home/docker/.openclaw/`
+- this repo should not maintain its own parallel agent control-plane directory
 
 ## Per-service Docker pattern
 
-Each Dockerized service should usually follow the same shape:
+Each Dockerized homelab service should usually follow this shape:
 
 ```text
 service/
@@ -129,16 +93,8 @@ The intended workflow is:
 3. On the target machine, copy `.env.example` to `.env` once and fill in the real values.
 4. Reuse that same `.env` on future pulls unless the example file adds new variables.
 
-Example:
-
-```bash
-cd app/mealie
-cp .env.example .env
-docker compose up -d
-```
-
 ## Recovery model
 
-- Git stores desired config and human-managed artifacts
-- running systems store live mutable state
-- backups must cover the parts intentionally excluded from git
+- Git stores desired config and human-managed artifacts.
+- Running systems store live mutable state.
+- Backups must cover the parts intentionally excluded from git.

@@ -1,100 +1,89 @@
-# Homelab Project
+# Homelab
 
-This repository contains the configuration, infrastructure, automation, and curated smart home configuration for a personal homelab.
+This repository is the source-controlled home for the actual homelab: self-hosted services, supporting infrastructure, curated Home Assistant configuration, and homelab-specific documentation.
 
-Primary goals:
+This repo now lives at `/home/docker/projects/homelab`. It is intentionally narrower than your broader workspace: standalone product repos also live under `/home/docker/projects/`, while the live OpenClaw operating model lives under `/home/docker/.openclaw/`.
 
-- host household services locally
-- build a kitchen wall dashboard
-- integrate smart home systems
-- replace some cloud services with self-hosted alternatives
-- create a clear source-of-truth model for apps, Home Assistant, agents, and recovery
+## What this repo currently holds
 
----
+### App services
+The `app/` directory currently contains the main homelab service areas:
+- `mealie/`
+- `mealie-dev/`
+- `grocy/`
+- `immich/`
+- `paperless/`
+- `plex/`
+- `ha-kitchen-demo/`
 
-# Core Architecture
-
-The homelab runs on a **Lenovo ThinkCentre M720q** server using **Proxmox**.
-
-```text
-Proxmox
-├─ VM: Ubuntu + Docker
-│  ├─ Mealie
-│  ├─ Immich
-│  ├─ Paperless
-│  ├─ Plex
-│  ├─ Grocy
-│  └─ supporting Docker services
-├─ VM: Home Assistant OS
-└─ LXC: Pi-hole
-```
-
-## Repository Layout
-
-```text
-homelab/
-├─ README.md
-├─ agents/
-├─ openclaw/
-├─ app/
-├─ infrastructure/
-├─ home-assistant/
-└─ docs/
-```
-
-## Source-of-truth model
-
-### Docker apps
-For Dockerized services under `app/` and `infrastructure/`:
-
-- Git stores deployment intent and human-managed configuration
-- the target machine stores real secrets and runtime data
-- backups protect persistent application state that git intentionally excludes
+### Infrastructure
+The `infrastructure/` directory is for supporting platform services such as tunnels, proxies, and other operational plumbing.
 
 ### Home Assistant
-For `home-assistant/`:
+The `home-assistant/` directory is for curated, intentional Home Assistant configuration, not a full runtime dump from the HA OS VM.
 
-- Git stores curated, human-managed Home Assistant configuration
-- the live Home Assistant OS VM owns runtime state and generated internals
-- Home Assistant backups provide full-fidelity recovery for the parts not kept in git
+### Docs and archive material
+- `docs/` contains homelab-specific documentation.
+- `archive/` is for small migration notes and historical pointers, not raw runtime payloads.
 
-### Agents and OpenClaw
-For `agents/` and `openclaw/`:
+This repo tracks deployment intent and managed config. Live mutable state still lives on the running systems.
 
-- `agents/` documents worker roles, provider choices, and access boundaries
-- `openclaw/` stores deployment intent, examples, scripts, and operations docs
-- live credentials, tokens, runtime state, and generated session data remain outside git
+## Repository boundaries
 
----
+Use this repo for:
+- Dockerized homelab services under `app/`
+- supporting infrastructure under `infrastructure/`
+- curated Home Assistant config under `home-assistant/`
+- homelab documentation under `docs/`
 
-# Primary Areas
+Do not use this repo for:
+- standalone product projects unrelated to operating the homelab
+- OpenClaw identity, routing, or coordination policy
+- generated runtime state, secrets, databases, caches, or logs
 
-## app/
-User-facing self-hosted services such as Mealie, Grocy, Immich, Paperless, and Plex.
+## Source-of-truth rules
 
-## infrastructure/
-Supporting infrastructure such as tunnels, proxies, and control-plane plumbing.
+### Docker services and infrastructure
+- Git stores deployment intent, human-managed config, docs, and helper scripts.
+- Running systems store secrets, databases, media, caches, and other mutable state.
+- Backups cover the state intentionally excluded from git.
 
-## home-assistant/
-Curated Home Assistant configuration for the live HA OS VM.
+### Home Assistant
+- Git stores curated config artifacts such as dashboards, packages, themes, blueprints, and selected assets.
+- The HA OS VM owns runtime internals and generated state.
+- Recovery depends on both git-managed config and HA backups.
 
-## agents/
-Human-readable documentation for assistant workers, roles, and access policies.
+### Agent/runtime model
+- The live OpenClaw operating model is outside this repo under `/home/docker/.openclaw/`.
+- This repo should not carry its own parallel agent control-plane layer.
 
-## openclaw/
-Deployment and operational home for the OpenClaw runtime.
+## Repo layout
 
----
+```text
+projects/homelab/
+├─ README.md
+├─ AGENTS.md
+├─ app/
+├─ archive/
+├─ docs/
+├─ home-assistant/
+└─ infrastructure/
+```
 
-# Dashboard
+## Working rules
 
-A wall-mounted **15-inch landscape display** will run a Home Assistant dashboard.
+- Keep unrelated services in separate folders and compose stacks.
+- Treat `home-assistant/` as curated config, not a backup dump.
+- Keep non-homelab product work in sibling repos under `/home/docker/projects/`.
+- Prefer deleting stale architecture layers instead of letting duplicate sources of truth accumulate.
 
-Design goals:
+## Kitchen dashboard
 
+The kitchen dashboard is still a homelab deliverable and belongs here when the work is tied to Home Assistant and the wall display setup.
+
+Current design direction:
 - dark mode
-- minimal aesthetic
-- Apple-style UI
-- single screen
-- tap expansions
-- readable from across the room
+- minimal layout
+- single-screen readability
+- large touch targets
+- readable at distance

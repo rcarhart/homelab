@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kitchen Dashboard Demo — Hero Meal First</title>
+  <title>Carhart Kitchen</title>
   <style>
     :root {
       --bg: #EDEDE9;
@@ -102,16 +102,29 @@
       grid-template-columns: 1.18fr 1fr;
       gap: 22px;
       align-items: stretch;
-      min-height: 430px;
     }
     .meal-image {
-      min-height: 390px;
+      height: 260px;
       border-radius: 26px;
-      background:
-        linear-gradient(180deg, rgba(71, 56, 43, 0.08), rgba(71, 56, 43, 0.25)),
-        url('https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1400&q=80') center/cover;
+      background: linear-gradient(135deg, #f4eee5, var(--accent));
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
       position: relative;
+      overflow: hidden;
+    }
+    .meal-image img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .meal-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(71,56,43,0.06), rgba(71,56,43,0.22));
+      pointer-events: none;
     }
     .meal-image .floating-badge {
       position: absolute;
@@ -129,7 +142,7 @@
     .meal-content {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 16px;
     }
     .meal-title {
@@ -259,6 +272,7 @@
       border: 2px solid var(--accent);
       display: inline-block;
       background: rgba(255,255,255,0.35);
+      flex-shrink: 0;
     }
     .week-card {
       margin-top: 18px;
@@ -355,6 +369,15 @@
       flex-wrap: wrap;
       background: linear-gradient(180deg, rgba(237,237,233,0), rgba(237,237,233,0.97) 36%);
     }
+    .skeleton {
+      background: rgba(110,95,82,0.08);
+      border-radius: 8px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
     @media (max-width: 1180px) {
       .grid, .hero, .cook-grid { grid-template-columns: 1fr; }
       .week-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -365,39 +388,29 @@
   <div class="shell">
     <div class="topbar">
       <div class="title-block">
-        <h1>Kitchen Dashboard — Hero Meal First</h1>
-        <p>Refined Skylight-style direction centered around tonight’s dinner, with music, shopping, meal plan, and Cook Mode.</p>
+        <h1>Carhart Kitchen</h1>
+        <p id="todayDate">Loading…</p>
       </div>
-      <div class="skylight-chip">Skylight palette • refined pass</div>
+      <div class="skylight-chip" id="statusChip">Connecting…</div>
     </div>
 
     <div class="grid">
       <div class="card">
         <div class="label">Tonight's Dinner</div>
         <div class="hero">
-          <div class="meal-image">
+          <div class="meal-image" id="mealImgDiv">
+            <img id="mealImg" alt="Tonight's dinner" />
             <div class="floating-badge">From Mealie • Tonight</div>
           </div>
           <div class="meal-content">
             <div>
-              <h2 class="meal-title">Creamy Tuscan Chicken Pasta</h2>
-              <div class="meta">
-                <span>Prep 15m</span>
-                <span>Cook 25m</span>
-                <span>Serves 4</span>
-                <span>Family favorite</span>
-              </div>
-              <div class="pill-row">
-                <span class="pill">Weeknight</span>
-                <span class="pill">Comfort food</span>
-                <span class="pill">High protein</span>
-              </div>
-              <p class="desc">A visually dominant dinner card designed to make tonight’s meal feel intentional, beautiful, and easy to enter into Cook Mode while still keeping the rest of the kitchen context nearby.</p>
+              <h2 class="meal-title" id="mealTitle">Loading…</h2>
+              <div class="meta" id="mealMeta"></div>
+              <div class="pill-row" id="mealTags"></div>
+              <p class="desc" id="mealDesc"></p>
             </div>
             <div class="btn-row">
               <button class="btn-primary" id="cookOpen">Open Cook Mode</button>
-              <button class="btn-secondary">View Recipe</button>
-              <button class="btn-secondary">Add Missing Items</button>
             </div>
           </div>
         </div>
@@ -413,10 +426,10 @@
             <span class="subtle-link">Kitchen Speaker</span>
           </div>
           <div class="music">
-            <div class="album">♫</div>
+            <div class="album" id="albumArt">♫</div>
             <div>
-              <p class="track-title">Golden Hour</p>
-              <p class="track-meta">Kacey Musgraves • Playing now</p>
+              <p class="track-title" id="trackTitle">—</p>
+              <p class="track-meta" id="trackMeta">Loading…</p>
               <div class="controls">
                 <button class="icon-btn">⏮</button>
                 <button class="icon-btn">⏯</button>
@@ -432,14 +445,12 @@
               <div class="label" style="margin-bottom:6px;">Shopping List</div>
               <h3>Tonight + Household</h3>
             </div>
-            <span class="subtle-link">View all</span>
+            <span class="subtle-link">Mealie</span>
           </div>
-          <div class="shopping-list">
-            <div class="list-item"><div class="left"><span class="checkbox"></span><span>Fresh basil</span></div><span class="subtle-link">Produce</span></div>
-            <div class="list-item"><div class="left"><span class="checkbox"></span><span>Heavy cream</span></div><span class="subtle-link">Dairy</span></div>
-            <div class="list-item"><div class="left"><span class="checkbox"></span><span>Parmesan cheese</span></div><span class="subtle-link">Dairy</span></div>
-            <div class="list-item"><div class="left"><span class="checkbox"></span><span>Chicken breast</span></div><span class="subtle-link">Meat</span></div>
-            <div class="list-item"><div class="left"><span class="checkbox"></span><span>Pasta</span></div><span class="subtle-link">Pantry</span></div>
+          <div class="shopping-list" id="shoppingList">
+            <div class="list-item skeleton" style="height:44px;"></div>
+            <div class="list-item skeleton" style="height:44px;"></div>
+            <div class="list-item skeleton" style="height:44px;"></div>
           </div>
         </div>
       </div>
@@ -453,14 +464,14 @@
         </div>
         <span class="subtle-link">Today highlighted</span>
       </div>
-      <div class="week-grid">
-        <div class="day"><strong>Mon</strong><div class="meal-name">Turkey Tacos</div><div class="status">Completed</div></div>
-        <div class="day today"><strong>Tue</strong><div class="meal-name">Creamy Tuscan Chicken Pasta</div><div class="status">Tonight’s dinner</div></div>
-        <div class="day"><strong>Wed</strong><div class="meal-name">Tomato Soup + Grilled Cheese</div><div class="status">Comfort night</div></div>
-        <div class="day"><strong>Thu</strong><div class="meal-name">Beef Stir Fry</div><div class="status">Quick prep</div></div>
-        <div class="day"><strong>Fri</strong><div class="meal-name">Homemade Pizza</div><div class="status">Family night</div></div>
-        <div class="day"><strong>Sat</strong><div class="meal-name">Leftovers</div><div class="status">Low effort</div></div>
-        <div class="day"><strong>Sun</strong><div class="meal-name">Roast Chicken</div><div class="status">Weekend meal</div></div>
+      <div class="week-grid" id="weekGrid">
+        <div class="day skeleton" style="min-height:130px;"></div>
+        <div class="day skeleton" style="min-height:130px;"></div>
+        <div class="day skeleton" style="min-height:130px;"></div>
+        <div class="day skeleton" style="min-height:130px;"></div>
+        <div class="day skeleton" style="min-height:130px;"></div>
+        <div class="day skeleton" style="min-height:130px;"></div>
+        <div class="day skeleton" style="min-height:130px;"></div>
       </div>
     </div>
   </div>
@@ -470,8 +481,7 @@
       <div class="cook-header">
         <div>
           <div class="label">Cook Mode</div>
-          <h2>Creamy Tuscan Chicken Pasta</h2>
-          <p class="desc" style="margin-top:10px; max-width:700px;">Designed for real kitchen use: clear ingredients, readable steps, and controls large enough for a wall tablet while cooking.</p>
+          <h2 id="cookTitle">Loading…</h2>
         </div>
         <button class="btn-secondary" id="cookClose">Close</button>
       </div>
@@ -483,16 +493,10 @@
               <div class="label" style="margin-bottom:6px;">Ingredients</div>
               <h3>Checklist</h3>
             </div>
-            <span class="subtle-link">7 items</span>
+            <span class="subtle-link" id="ingCount">—</span>
           </div>
-          <div class="ingredients-list">
-            <div class="list-item"><div class="left"><span class="checkbox"></span><span>2 chicken breasts</span></div></div>
-            <div class="list-item"><div class="left"><span class="checkbox"></span><span>12 oz pasta</span></div></div>
-            <div class="list-item"><div class="left"><span class="checkbox"></span><span>1 cup heavy cream</span></div></div>
-            <div class="list-item"><div class="left"><span class="checkbox"></span><span>3 garlic cloves</span></div></div>
-            <div class="list-item"><div class="left"><span class="checkbox"></span><span>1/2 cup parmesan</span></div></div>
-            <div class="list-item"><div class="left"><span class="checkbox"></span><span>Fresh basil</span></div></div>
-            <div class="list-item"><div class="left"><span class="checkbox"></span><span>Sun-dried tomatoes</span></div></div>
+          <div class="ingredients-list" id="ingredientsList">
+            <div class="list-item skeleton" style="height:44px;"></div>
           </div>
         </div>
 
@@ -502,19 +506,12 @@
               <div class="label" style="margin-bottom:6px;">Directions</div>
               <h3>Step-by-step</h3>
             </div>
-            <span class="subtle-link">Readable cooking flow</span>
           </div>
-          <div class="steps">
-            <div class="step"><strong>1.</strong> Boil the pasta in salted water until al dente. Reserve a little pasta water before draining.</div>
-            <div class="step"><strong>2.</strong> Season the chicken, sear until golden, and let it rest before slicing.</div>
-            <div class="step"><strong>3.</strong> Sauté garlic and sun-dried tomatoes, then add cream and parmesan to build the sauce.</div>
-            <div class="step"><strong>4.</strong> Add sliced chicken and pasta back into the pan. Loosen with pasta water if needed.</div>
-            <div class="step"><strong>5.</strong> Finish with basil, taste for seasoning, and serve warm.</div>
+          <div class="steps" id="stepsList">
+            <div class="step skeleton" style="height:60px;"></div>
           </div>
           <div class="sticky">
-            <button class="btn-primary">Next Step</button>
-            <button class="btn-secondary">Start 10m Timer</button>
-            <button class="btn-secondary">Keep Screen Awake</button>
+            <button class="btn-secondary" id="wakeBtn">Keep Screen Awake</button>
           </div>
         </div>
       </div>
@@ -522,10 +519,270 @@
   </div>
 
   <script>
+  (function () {
+    const API = '/mealie';
+
+    // Set today's date in header
+    const now = new Date();
+    document.getElementById('todayDate').textContent = now.toLocaleDateString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric'
+    });
+
+    function fmtDuration(iso) {
+      if (!iso) return null;
+      const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?/i);
+      if (!m) return null;
+      const h = parseInt(m[1] || 0);
+      const min = parseInt(m[2] || 0);
+      if (h && min) return h + 'h ' + min + 'm';
+      if (h) return h + 'h';
+      if (min) return min + 'm';
+      return null;
+    }
+
+    function fmtQty(q) {
+      if (!q && q !== 0) return '';
+      return (q % 1 === 0) ? String(Math.round(q)) : String(q);
+    }
+
+    function esc(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderMeal(name, recipe, slug, recipeId) {
+      document.getElementById('mealTitle').textContent = name;
+      document.getElementById('cookTitle').textContent = name;
+
+      if (recipeId) {
+        const img = document.getElementById('mealImg');
+        img.src = API + '/media/recipes/' + recipeId + '/images/original.webp';
+        img.style.display = 'block';
+        img.onerror = function () { this.style.display = 'none'; };
+      }
+
+      if (!recipe) return;
+
+      const prep = fmtDuration(recipe.prepTime);
+      const cook = fmtDuration(recipe.performTime) || fmtDuration(recipe.totalTime);
+      const serves = recipe.recipeYield;
+      const metaParts = [];
+      if (prep) metaParts.push(prep + ' prep');
+      if (cook) metaParts.push(cook + ' cook');
+      if (serves) metaParts.push('Serves ' + serves);
+      document.getElementById('mealMeta').innerHTML =
+        metaParts.map(function (p) { return '<span>' + esc(p) + '</span>'; }).join('');
+
+      const tags = (recipe.tags || []).map(function (t) { return t.name || t; }).slice(0, 4);
+      document.getElementById('mealTags').innerHTML = tags.length
+        ? tags.map(function (t) { return '<span class="pill">' + esc(t) + '</span>'; }).join('')
+        : '<span class="pill">Dinner</span>';
+
+      if (recipe.description) {
+        document.getElementById('mealDesc').textContent = recipe.description;
+      }
+
+      const ings = recipe.recipeIngredient || [];
+      document.getElementById('ingredientsList').innerHTML = ings.length
+        ? ings.map(function (i) {
+            const qty = fmtQty(i.quantity);
+            const unit = (i.unit && i.unit.name) ? i.unit.name : '';
+            const food = (i.food && i.food.name) ? i.food.name : (i.note || '');
+            const label = [qty, unit, food].filter(Boolean).join(' ');
+            return '<div class="list-item"><div class="left">' +
+              '<span class="checkbox"></span><span>' + esc(label) + '</span></div></div>';
+          }).join('')
+        : '<div class="list-item"><div class="left"><span>No ingredients found</span></div></div>';
+
+      document.getElementById('ingCount').textContent = ings.length + ' items';
+
+      const steps = recipe.recipeInstructions || [];
+      document.getElementById('stepsList').innerHTML = steps.length
+        ? steps.map(function (s, i) {
+            const text = s.text || s.instruction || s.description || '';
+            return '<div class="step"><strong>' + (i + 1) + '.</strong> ' + esc(text) + '</div>';
+          }).join('')
+        : '<div class="step">No directions found.</div>';
+    }
+
+    function renderWeekPlan(items) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayStr = today.toISOString().slice(0, 10);
+      const dow = today.getDay();
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+      var weekDays = [];
+      for (var i = 0; i < 7; i++) {
+        var d = new Date(today);
+        d.setDate(today.getDate() - dow + i);
+        weekDays.push(d.toISOString().slice(0, 10));
+      }
+
+      var mealByDate = {};
+      for (var j = 0; j < items.length; j++) {
+        var item = items[j];
+        if (item.entryType === 'dinner' && item.recipe && item.recipe.name) {
+          mealByDate[item.date] = item.recipe.name;
+        }
+      }
+
+      document.getElementById('weekGrid').innerHTML = weekDays.map(function (dateStr, i) {
+        var isToday = dateStr === todayStr;
+        var meal = mealByDate[dateStr];
+        var status = isToday ? "Tonight's dinner" : '';
+        return '<div class="day' + (isToday ? ' today' : '') + '">' +
+          '<strong>' + dayNames[i] + '</strong>' +
+          '<div class="meal-name">' + esc(meal || '—') + '</div>' +
+          (status ? '<div class="status">' + status + '</div>' : '') +
+          '</div>';
+      }).join('');
+    }
+
+    function renderShoppingList(items) {
+      var el = document.getElementById('shoppingList');
+      var unchecked = items.filter(function (i) { return !i.checked; });
+      if (!unchecked.length) {
+        el.innerHTML = '<div class="list-item"><div class="left"><span>Shopping list is empty</span></div></div>';
+        return;
+      }
+      el.innerHTML = unchecked.slice(0, 10).map(function (item) {
+        var name = (item.food && item.food.name) ? item.food.name : (item.note || 'Item');
+        var cat = (item.label && item.label.name) ? item.label.name : '';
+        return '<div class="list-item">' +
+          '<div class="left"><span class="checkbox"></span><span>' + esc(name) + '</span></div>' +
+          (cat ? '<span class="subtle-link">' + esc(cat) + '</span>' : '') +
+          '</div>';
+      }).join('');
+    }
+
+    async function loadSpotify() {
+      try {
+        const resp = await fetch('/ha/api/states/media_player.spotify_rcarhart2');
+        if (!resp.ok) return;
+        const state = await resp.json();
+        const attr = state.attributes || {};
+        const playing = state.state === 'playing' || state.state === 'paused';
+
+        const title = attr.media_title || '—';
+        const artist = attr.media_artist || '';
+        const device = attr.source || attr.friendly_name || 'Spotify';
+        const status = state.state === 'playing' ? 'Playing now' : state.state === 'paused' ? 'Paused' : 'Idle';
+
+        document.getElementById('trackTitle').textContent = playing ? title : '—';
+        document.getElementById('trackMeta').textContent = playing
+          ? (artist ? artist + ' • ' + status : status)
+          : 'Nothing playing';
+
+        // Album art
+        const artUrl = attr.entity_picture;
+        const albumEl = document.getElementById('albumArt');
+        if (artUrl) {
+          albumEl.style.backgroundImage = 'url("/ha' + artUrl + '")';
+          albumEl.style.backgroundSize = 'cover';
+          albumEl.style.backgroundPosition = 'center';
+          albumEl.textContent = '';
+        }
+      } catch (e) {
+        document.getElementById('trackMeta').textContent = 'No media connected';
+      }
+    }
+
+    async function loadDashboard() {
+      try {
+        // Today's meal plan
+        const planResp = await fetch(API + '/households/mealplans/today');
+        if (!planResp.ok) throw new Error('Meal plan ' + planResp.status);
+        const plans = await planResp.json();
+        const planArr = Array.isArray(plans) ? plans : (plans.items || [plans]);
+        const todayPlan = planArr.find(function (p) { return p.entryType === 'dinner'; }) || planArr[0];
+        const slug = todayPlan && todayPlan.recipe ? todayPlan.recipe.slug : null;
+        const recipeId = todayPlan && todayPlan.recipe ? todayPlan.recipe.id : null;
+        const mealName = (todayPlan && todayPlan.recipe && todayPlan.recipe.name) || 'No meal planned today';
+
+        // Full recipe detail
+        let recipe = null;
+        if (slug) {
+          const recipeResp = await fetch(API + '/recipes/' + slug);
+          if (recipeResp.ok) recipe = await recipeResp.json();
+        }
+
+        // Weekly plan — perPage=50 to cover full history and current week
+        const weekResp = await fetch(API + '/households/mealplans?perPage=50&orderBy=date&orderDirection=asc');
+        const weekData = weekResp.ok ? await weekResp.json() : {};
+
+        // Shopping list — merge both lists, deduplicate by id
+        const [shopResp1, shopResp2] = await Promise.all([
+          fetch(API + '/households/shopping/items?perPage=-1&listId=426daca7-1a35-4b03-a802-d47b0458e184'),
+          fetch(API + '/households/shopping/items?perPage=-1&listId=eb1401ea-0810-482d-a8bf-403fef88c110'),
+        ]);
+        const shopRaw1 = shopResp1.ok ? await shopResp1.json() : {};
+        const shopRaw2 = shopResp2.ok ? await shopResp2.json() : {};
+        const allItems = [...(shopRaw1.items || []), ...(shopRaw2.items || [])];
+        const seenIds = new Set();
+        const shopData = { items: allItems.filter(i => seenIds.has(i.id) ? false : seenIds.add(i.id)) };
+
+        renderMeal(mealName, recipe, slug, recipeId);
+        renderWeekPlan(weekData.items || (Array.isArray(weekData) ? weekData : []));
+        renderShoppingList(shopData.items || (Array.isArray(shopData) ? shopData : []));
+
+        // Spotify — best-effort, won't block render
+        loadSpotify();
+
+        document.getElementById('statusChip').textContent = 'Live • Mealie';
+      } catch (e) {
+        console.error('Dashboard load error:', e);
+        document.getElementById('statusChip').textContent = 'Offline';
+        document.getElementById('mealTitle').textContent = 'Unable to load';
+      }
+    }
+
+    // Wake lock
+    let wakeLock = null;
+    const wakeBtn = document.getElementById('wakeBtn');
+    if ('wakeLock' in navigator) {
+      wakeBtn.addEventListener('click', async function () {
+        if (wakeLock) {
+          await wakeLock.release();
+        } else {
+          try {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeBtn.textContent = 'Screen Awake — On';
+            wakeBtn.className = 'btn-primary';
+            wakeLock.addEventListener('release', function () {
+              wakeLock = null;
+              wakeBtn.textContent = 'Keep Screen Awake';
+              wakeBtn.className = 'btn-secondary';
+            });
+          } catch (e) {
+            console.warn('Wake lock denied:', e);
+          }
+        }
+      });
+    } else {
+      wakeBtn.textContent = 'Wake Lock Unsupported';
+      wakeBtn.disabled = true;
+    }
+
+    // Cook mode toggle
     const overlay = document.getElementById('cookOverlay');
-    document.getElementById('cookOpen').addEventListener('click', () => overlay.classList.add('open'));
-    document.getElementById('cookClose').addEventListener('click', () => overlay.classList.remove('open'));
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+    document.getElementById('cookOpen').addEventListener('click', function () {
+      overlay.classList.add('open');
+    });
+    document.getElementById('cookClose').addEventListener('click', function () {
+      overlay.classList.remove('open');
+    });
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) overlay.classList.remove('open');
+    });
+
+    // Initial load + 5-minute refresh
+    loadDashboard();
+    setInterval(loadDashboard, 5 * 60 * 1000);
+  })();
   </script>
 </body>
 </html>

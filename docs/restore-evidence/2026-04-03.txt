@@ -1,0 +1,36 @@
+=== Restore Drill Evidence — 2026-04-03 ===
+
+--- Container Health ---
+619d5c651162_ha-kitchen-demo: Up 28 minutes
+mission-control: Up 28 minutes
+pittsburghdivorce: Up 28 minutes
+mealie: Up 28 minutes (healthy)
+grocy: Up 28 minutes
+mealie-backup: Restarting (1) 27 seconds ago
+mealie-watchtower: Up 28 minutes (healthy)
+cloudflared: Up 28 minutes
+
+--- mealie-backup state ---
+Status=restarting Exit=1 Restarting=true
+
+--- Mealie backup artifacts ---
+total 8.0K
+drwxr-xr-x 2 abc abc 4.0K Apr  3 12:47 .
+drwxr-xr-x 7 abc abc 4.0K Apr  3 12:48 ..
+
+--- Grocy volume mounts ---
+Source=/home/docker/homelab/app/grocy/config Type=bind
+
+
+
+--- ROOT CAUSE ANALYSIS ---
+mealie-backup failure root cause: Container was launched from old path (/home/docker/homelab/app/mealie)
+but scripts/ directory at that path is empty. The backup script exists at the NEW canonical path:
+  /home/docker/projects/homelab/app/mealie/scripts/backup-mealie.sh
+Fix required: Recreate mealie-backup container from the correct compose path, OR
+copy the script to the old path (requires elevated perms or restarting from projects/ dir).
+
+mealie API token: EXPIRED or INVALID — cannot trigger backup via API.
+Action needed from Ross: Regenerate Mealie API token and re-run compose from projects/homelab/app/mealie/
+
+VERDICT: NO VALID BACKUP EXISTS. Data loss window is open for Mealie.
