@@ -9,6 +9,7 @@ This repo now lives at `/home/docker/projects/homelab`. It is intentionally narr
 ### App services
 The `app/` directory currently contains the main homelab service areas:
 - `mealie/`
+- `feedme/`
 - `mealie-dev/`
 - `grocy/`
 - `immich/`

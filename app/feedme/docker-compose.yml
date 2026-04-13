@@ -1,0 +1,12 @@
+services:
+  feedme:
+    image: ghcr.io/rcarhart/feedme:latest
+    container_name: feedme
+    restart: unless-stopped
+    ports:
+      - "${FEEDME_PORT}:8080"
+    environment:
+      TZ: ${TZ}
+      OLLAMA_BASE_URL: ${FEEDME_OLLAMA_BASE_URL}
+      OLLAMA_API_KEY: ${FEEDME_OLLAMA_API_KEY}
+      LLM_MODEL: ${FEEDME_MODEL}
