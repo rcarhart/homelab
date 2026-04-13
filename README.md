@@ -19,6 +19,7 @@ The homelab runs on a **Lenovo ThinkCentre M720q** server using **Proxmox**.
 ```text
 Proxmox
 ├─ VM: Ubuntu + Docker
+│  ├─ FeedMe (Mealie fork)
 │  ├─ Mealie
 │  ├─ Immich
 │  ├─ Paperless
