@@ -1,12 +1,29 @@
 services:
   feedme:
-    image: ghcr.io/rcarhart/feedme:latest
+    build:
+      context: /home/rcarhart/projects/mealie-dev
+      dockerfile: Dockerfile
+    image: feedme:latest
     container_name: feedme
     restart: unless-stopped
     ports:
-      - "${FEEDME_PORT}:8080"
+      - "${FEEDME_PORT}:9000"
     environment:
       TZ: ${TZ}
-      OLLAMA_BASE_URL: ${FEEDME_OLLAMA_BASE_URL}
-      OLLAMA_API_KEY: ${FEEDME_OLLAMA_API_KEY}
-      LLM_MODEL: ${FEEDME_MODEL}
+      PRODUCTION: "true"
+      BASE_URL: ${FEEDME_BASE_URL}
+      ALLOW_SIGNUP: ${ALLOW_SIGNUP}
+      ALLOW_PASSWORD_LOGIN: ${ALLOW_PASSWORD_LOGIN}
+      OIDC_AUTH_ENABLED: ${OIDC_AUTH_ENABLED}
+      OIDC_SIGNUP_ENABLED: ${OIDC_SIGNUP_ENABLED}
+      OIDC_CONFIGURATION_URL: ${OIDC_CONFIGURATION_URL}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      OIDC_PROVIDER_NAME: ${OIDC_PROVIDER_NAME}
+      OIDC_USER_CLAIM: ${OIDC_USER_CLAIM}
+      OIDC_NAME_CLAIM: ${OIDC_NAME_CLAIM}
+      OPENAI_BASE_URL: ${FEEDME_OPENAI_BASE_URL}
+      OPENAI_API_KEY: ${FEEDME_OPENAI_API_KEY}
+      OPENAI_MODEL: ${FEEDME_OPENAI_MODEL}
+    volumes:
+      - ./data:/app/data
